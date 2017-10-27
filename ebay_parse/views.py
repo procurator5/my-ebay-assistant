@@ -4,6 +4,33 @@ import urllib.request
 from lxml import etree
 from .models import Setting
 
+# Create your views here.
+def index(request):
+   response = findItemsByCategory(categoryId="165708")
+   return HttpResponse(response)
+
+def get_response(operation_name, data, encoding, **headers):
+    globalId = 'EBAY-US'
+    #take app_name from database
+
+    app_name = Setting.objects.filter(setting_name = 'AppID').values('setting_value')[0]['setting_value']
+    endpoint = 'http://svcs.ebay.com/services/search/FindingService/v1'
+
+    http_headers = {
+        "X-EBAY-SOA-OPERATION-NAME": operation_name,
+        "X-EBAY-SOA-SECURITY-APPNAME": app_name,
+        "X-EBAY-SOA-GLOBAL-ID": globalId,
+        "X-EBAY-SOA-RESPONSE-DATA-FORMAT": encoding}
+
+    http_headers.update(headers)
+    try:
+       req = urllib.request.Request(endpoint, data, http_headers)
+       res = urllib.request.urlopen(req)
+    except Exception as e:
+       return str(e)
+    data = res.read()
+    return data
+
 def findItemsByCategory(
         categoryId, affiliate=None,
         buyerPostalCode=None, sortOrder=None,
@@ -67,33 +94,5 @@ def findItemsByCategory(
 
     request = etree.tostring(root, pretty_print=True)
     return get_response(findItemsByCategory.__name__, request, encoding)
-
-
-# Create your views here.
-def index(request):
-   response = findItemsByCategory(categoryId="123")
-   return HttpResponse(response)
-
-def get_response(operation_name, data, encoding, **headers):
-    globalId = 'EBAY-US'
-    #take app_name from database
-
-    app_name = Setting.objects.filter(setting_name = 'AppID').values('setting_value')[0]['setting_value']
-    endpoint = 'http://svcs.sandbox.ebay.com/services/search/FindingService/v1'
-
-    http_headers = {
-        "X-EBAY-SOA-OPERATION-NAME": operation_name,
-        "X-EBAY-SOA-SECURITY-APPNAME": app_name,
-        "X-EBAY-SOA-GLOBAL-ID": globalId,
-        "X-EBAY-SOA-RESPONSE-DATA-FORMAT": encoding}
-
-    http_headers.update(headers)
-    try:
-       req = urllib.request.Request(endpoint, data, http_headers)
-       res = urllib.request.urlopen(req)
-    except Exception as e:
-       return str(e)
-    data = res.read()
-    return data
 
 

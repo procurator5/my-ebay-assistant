@@ -9,6 +9,7 @@ def index(request):
    response = findItemsByCategory(categoryId="165708")
    return HttpResponse(response)
 
+
 def get_response(operation_name, data, encoding, **headers):
     globalId = 'EBAY-US'
     #take app_name from database

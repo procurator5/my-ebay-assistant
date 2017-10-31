@@ -3,11 +3,19 @@ from django.http import HttpResponse
 import urllib.request
 from lxml import etree
 from .models import Setting
+import json
 
 # Create your views here.
 def index(request):
    response = findItemsByCategory(categoryId="165708")
-   return HttpResponse(response)
+   api_resp = json.loads(response.decode('utf-8'))
+   items = api_resp['findItemsByCategoryResponse'][0]['searchResult'][0]['item']
+   result= ''
+   for item in items:
+      print(item['itemId'])
+      result += str(item['itemId']) + "<br/>"
+
+   return HttpResponse(result)
 
 
 def get_response(operation_name, data, encoding, **headers):

@@ -27,20 +27,20 @@ class eBayItem(models.Model):
     ebay_watch_count = models.IntegerField()
 
 class eBayCategory(models.Model):
-    ebay_category_id = models.IntegerField()
+    ebay_category_id = models.AutoField()
     ebay_category_id.primary_key = True
     ebay_category_name = models.CharField(max_length=256)
     ebay_category_parent = models.ForeignKey('eBayCategory', on_delete=models.DO_NOTHING, null = True, blank = True )
 
 class eBayPaymentMethod(models.Model):
-    payment_method_id = models.IntegerField()
+    payment_method_id = models.AutoField()
     payment_method_id.primary_key = True
     payment_method_name = models.CharField(max_length=64)
 
 class Country(models.Model):
-    country_id = models.IntegerField(primary_key = True)
+    country_id = models.AutoField(primary_key = True)
     country_name = models.CharField(max_length = 64)
 
 class ListingType(models.Model):
-    listing_type_id = models.IntegerField(primary_key = True)
+    listing_type_id = models.AutoField(primary_key = True)
     listing_type_name = models.CharField(max_length = 64)

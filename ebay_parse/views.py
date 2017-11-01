@@ -3,6 +3,8 @@ from django.http import HttpResponse
 import urllib.request
 from lxml import etree
 from .models import Setting
+from .models import eBayItem
+from .models import eBayCategory
 import json
 
 # Create your views here.
@@ -12,9 +14,43 @@ def index(request):
    items = api_resp['findItemsByCategoryResponse'][0]['searchResult'][0]['item']
    result= ''
    for item in items:
-      print(item['itemId'])
-      result += str(item['itemId']) + "<br/>"
+      cat = eBayCategory(ebay_category_id = int(item['primaryCategory'][0]['categoryId'][0]),
+		    ebay_category_name = str(item['primaryCategory'][0]['categoryName'][0])
+	    )
+      cat.save()
+      try:
+         watch_count = int(item['listingInfo'][0]['watchCount'][0])
+      except KeyError:
+         watch_count = 0
 
+      try:
+         postalcode = str(item['postalCode'][0])
+      except KeyError:
+         postalcode = 0
+      price = float(item['sellingStatus'][0]['currentPrice'][0]['__value__'])
+
+      try:
+         shipping_price = float(item['shippingInfo'][0]['shippingServiceCost'][0]['__value__'])
+      except KeyError:
+         shipping_price = 0
+
+      row = eBayItem(ebay_item_id = int(item['itemId'][0]), 
+		    ebay_item_title = str(item['title'][0]), 
+		    ebay_item_postalcode = postalcode,
+		    ebay_item_price = price,
+		    ebay_item_shipping_price = shipping_price,
+		    ebay_item_starttime = str(item['listingInfo'][0]['startTime'][0]),
+		    ebay_item_endtime = str(item['listingInfo'][0]['endTime'][0]),
+		    ebay_watch_count = watch_count,
+		    ebay_category = cat
+	)
+      row.save()
+      result +="<table border='0'><tr><td><img src='" +str(item['galleryURL'][0]) +"'/></td><td>"
+      result += str(item['itemId'][0]) + "<br/>"
+      result += str(item['title'][0]) + "<br/>"
+      result += str(price) + " $</td></tr></table><br/>"
+
+#   return HttpResponse(response)
    return HttpResponse(result)
 
 

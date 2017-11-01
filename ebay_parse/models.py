@@ -2,6 +2,9 @@ from django.db import models
 
 # Create your models here.
 
+def load_empty_image():
+    return "empty"
+
 class Setting(models.Model):
     setting_name = models.CharField(max_length=128)
     setting_value = models.CharField(max_length=128)
@@ -16,15 +19,16 @@ class eBayItem(models.Model):
     ebay_category = models.ForeignKey('eBayCategory', on_delete=models.CASCADE)
     ebay_item_url = models.URLField()
     payment_method = models.ForeignKey('eBayPaymentMethod', on_delete = models.SET_NULL, null=True, blank=True)
-    ebay_item_postalcode = models.IntegerField()
+    ebay_item_postalcode = models.CharField(max_length=10)
     ebay_item_location = models.CharField(max_length=256)
     country = models.ForeignKey('Country', on_delete = models.SET_NULL, null=True, blank=True)
-    ebay_item_price = models.DecimalField(max_digits = 5, decimal_places=2)
-    ebay_item_shipping_price = models.DecimalField(max_digits = 10, decimal_places=2)
+    ebay_item_price = models.DecimalField(max_digits = 10, decimal_places=2)
+    ebay_item_shipping_price = models.DecimalField(max_digits = 5, decimal_places=2)
     ebay_item_starttime = models.DateTimeField()
     ebay_item_endtime = models.DateTimeField()
     listing_type = models.ForeignKey('ListingType', on_delete = models.SET_NULL, null=True, blank=True)
     ebay_watch_count = models.IntegerField()
+    ebay_gallery_icon = models.ImageField(default=load_empty_image)
 
 class eBayCategory(models.Model):
     ebay_category_id = models.AutoField()

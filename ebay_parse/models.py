@@ -1,5 +1,7 @@
 from django.db import models
-
+import urllib
+import os
+from django.core.files.images import ImageFile
 # Create your models here.
 
 def load_empty_image():
@@ -28,7 +30,25 @@ class eBayItem(models.Model):
     ebay_item_endtime = models.DateTimeField()
     listing_type = models.ForeignKey('ListingType', on_delete = models.SET_NULL, null=True, blank=True)
     ebay_watch_count = models.IntegerField()
-    ebay_gallery_icon = models.ImageField(default=load_empty_image)
+    ebay_gallery_icon = models.ImageField(default=load_empty_image, upload_to='icons')
+
+    def loadIcon(self, url):
+	    try:
+		    print(self.ebay_item_id)
+		    myItem = eBayItem.objects.get(pk = self.ebay_item_id)
+		    print(myItem.ebay_gallery_icon)
+		    if myItem.ebay_gallery_icon == 'empty':
+			    result = urllib.request.urlretrieve(url)
+			    self.ebay_gallery_icon.save(
+				os.path.basename(url),
+				ImageFile(open(result[0], 'rb'))
+			    )
+	    except eBayItem.DoesNotExist:
+		    result = urllib.request.urlretrieve(url)
+		    self.ebay_gallery_icon.save(
+			os.path.basename(url),
+			ImageFile(open(result[0], 'rb'))
+		    )
 
 class eBayCategory(models.Model):
     ebay_category_id = models.AutoField()

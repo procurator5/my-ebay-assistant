@@ -44,6 +44,7 @@ def index(request):
 		    ebay_watch_count = watch_count,
 		    ebay_category = cat
 	)
+      row.loadIcon(str(item['galleryURL'][0]))
       row.save()
       result +="<table border='0'><tr><td><img src='" +str(item['galleryURL'][0]) +"'/></td><td>"
       result += str(item['itemId'][0]) + "<br/>"

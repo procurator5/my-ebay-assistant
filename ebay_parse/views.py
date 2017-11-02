@@ -5,6 +5,9 @@ from lxml import etree
 from .models import Setting
 from .models import eBayItem
 from .models import eBayCategory
+from .models import eBayPaymentMethod
+from .models import Country
+from .models import ListingType
 import json
 
 # Create your views here.
@@ -34,6 +37,24 @@ def index(request):
       except KeyError:
          shipping_price = 0
 
+      try:
+         method = eBayPaymentMethod.objects.get(payment_method_name = str(item['paymentMethod'][0]))
+      except eBayPaymentMethod.DoesNotExist:
+         method = eBayPaymentMethod(payment_method_name = str(item['paymentMethod'][0]))
+         method.save()
+
+      try:
+         country = Country.objects.get(country_name = str(item['country'][0]))
+      except Country.DoesNotExist:
+         country = Country(country_name = str(item['country'][0]))
+         country.save()
+
+      try:
+         listing = ListingType.objects.get(listing_type_name = str(item['listingInfo'][0]['listingType'][0]))
+      except ListingType.DoesNotExist:
+         listing = ListingType(listing_type_name = str(item['listingInfo'][0]['listingType'][0]))
+         listing.save()
+
       row = eBayItem(ebay_item_id = int(item['itemId'][0]), 
 		    ebay_item_title = str(item['title'][0]), 
 		    ebay_item_postalcode = postalcode,
@@ -42,7 +63,12 @@ def index(request):
 		    ebay_item_starttime = str(item['listingInfo'][0]['startTime'][0]),
 		    ebay_item_endtime = str(item['listingInfo'][0]['endTime'][0]),
 		    ebay_watch_count = watch_count,
-		    ebay_category = cat
+		    ebay_category = cat,
+		    ebay_item_url = str(item['viewItemURL'][0]),
+		    ebay_item_location =str(item['location'][0]),
+		    country = country,
+		    payment_method = method,
+		    listing_type = listing
 	)
       row.loadIcon(str(item['galleryURL'][0]))
       row.save()

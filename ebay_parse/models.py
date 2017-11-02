@@ -5,7 +5,7 @@ from django.core.files.images import ImageFile
 # Create your models here.
 
 def load_empty_image():
-    return "empty"
+    return "icons/blank.png"
 
 class Setting(models.Model):
     setting_name = models.CharField(max_length=128)
@@ -34,15 +34,15 @@ class eBayItem(models.Model):
 
     def loadIcon(self, url):
 	    try:
-		    print(self.ebay_item_id)
 		    myItem = eBayItem.objects.get(pk = self.ebay_item_id)
-		    print(myItem.ebay_gallery_icon)
-		    if myItem.ebay_gallery_icon == 'empty':
+		    if myItem.ebay_gallery_icon == 'icons/blank.png':
 			    result = urllib.request.urlretrieve(url)
 			    self.ebay_gallery_icon.save(
 				os.path.basename(url),
 				ImageFile(open(result[0], 'rb'))
 			    )
+		    else:
+			    self.ebay_gallery_icon = myItem.ebay_gallery_icon
 	    except eBayItem.DoesNotExist:
 		    result = urllib.request.urlretrieve(url)
 		    self.ebay_gallery_icon.save(

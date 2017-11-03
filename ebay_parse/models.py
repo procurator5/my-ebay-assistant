@@ -1,9 +1,10 @@
-from django.db import models
-import urllib
-import os
 from django.core.files.images import ImageFile
-# Create your models here.
+from django.db import models
+import os
+import urllib
 
+
+# Create your models here.
 def load_empty_image():
     return "icons/blank.png"
 

@@ -1,14 +1,16 @@
-from django.shortcuts import render
 from django.http import HttpResponse
-import urllib.request
+from django.shortcuts import render
+import json
 from lxml import etree
-from .models import Setting
-from .models import eBayItem
-from .models import eBayCategory
-from .models import eBayPaymentMethod
+import urllib.request
+
 from .models import Country
 from .models import ListingType
-import json
+from .models import Setting
+from .models import eBayCategory
+from .models import eBayItem
+from .models import eBayPaymentMethod
+
 
 # Create your views here.
 def index(request):

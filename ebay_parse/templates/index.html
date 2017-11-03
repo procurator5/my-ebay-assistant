@@ -1,0 +1,12 @@
+{% load static %}
+<html>
+<head>
+<link rel="stylesheet" href="{% static 'parse.css' %}">
+<title>{{category_name}}</title>
+</head>
+<body>
+<h1>Load category {{category_name}} from eBay.com</h1>
+  <progress max="{{ all_items }}" value="{{ loaded_items }}">
+    Загружено на <span id="value">25</span>%
+</body>    
+</html>

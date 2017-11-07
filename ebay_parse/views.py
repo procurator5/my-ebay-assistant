@@ -90,7 +90,8 @@ def category(request, category_id):
     template = loader.get_template("index.html")
     context = {'all_items': all_items, 
                 'loaded_items': loaded_items,
-                'category_name': category_name 
+                'category_name': category_name,
+                'categories': eBayCategory.objects.all(),
                 }
     return HttpResponse(template.render(context, request))
 

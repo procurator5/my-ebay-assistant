@@ -9,3 +9,12 @@
     Загружено на <span id="value">{{ loaded_items }}</span>
     
 {% endblock %}
+
+{% block sidenav %}
+			<h2>Categories</h2>
+				<ul>
+				{% for cat in categories %}
+				    <li> <a href="/ebay_parse/{{cat.ebay_category_id}}">{{ cat.ebay_category_name }}</a></li>
+				{% endfor %}
+				</ul>			
+{% endblock %}

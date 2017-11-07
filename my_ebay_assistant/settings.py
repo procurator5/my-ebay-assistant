@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+from django.conf.global_settings import LOCALE_PATHS
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -111,9 +112,18 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru'
+
+LANGUAGES = (
+    'ru_RU', 'Russian',
+    'en-us', 'English'
+    )
 
 TIME_ZONE = 'UTC'
+
+LOCALE_PATHS = (
+    os.path.join(BASE_DIR, '../locale'),
+    )
 
 USE_I18N = True
 

@@ -32,6 +32,9 @@ def category(request, category_id):
    
     for item in items:
         all_items += 1
+        #Проверяем есть ли уже такая запись
+        if eBayItem.objects.filter(ebay_item_id = int(item['itemId'][0])).exists():
+            loaded_items +=1
         try:
             watch_count = int(item['listingInfo'][0]['watchCount'][0])
         except KeyError:
@@ -84,7 +87,6 @@ def category(request, category_id):
         row.loadIcon(str(item['galleryURL'][0]))
         row.save()
 
-    loaded_items = all_items
     template = loader.get_template("index.html")
     context = {'all_items': all_items, 
                 'loaded_items': loaded_items,

@@ -1,0 +1,59 @@
+﻿{% load static %}
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="description" content="description"/>
+<meta name="keywords" content="keywords"/> 
+<meta name="author" content="author"/> 
+<link rel="stylesheet" type="text/css" href="{% static 'default.css' %}"/>
+<title>{% block title %}Beautiful Day {% endblock title %}</title>
+</head>
+<body>
+<div class="top">
+	<div class="header">
+		<div class="left">
+			Ebay assistant
+		</div>
+		<div class="right">
+			<h2>Tristique porta</h2>
+			<p>Fusce porta pede nec eros. Maecenas ipsum sem, interdum non, aliquam vitae, interdum nec, metus. Maecenas ornare lobortis risus.</p>
+		</div>
+	</div>	
+</div>
+<div class="container">	<div class="inner_copy"></div>
+	{% include "__navigation.html" %}
+	<div class="main">		
+		<div class="content">
+			{% block content %} {% endblock content %}
+		</div>
+		<div class="sidenav">
+			<h2>Something</h2>
+			<ul>
+				<li><a href="#">pellentesque</a></li>
+				<li><a href="#">sociis natoque</a></li>
+				<li><a href="#">semper</a></li>
+				<li><a href="#">convallis</a></li>
+			</ul>
+			<h2>Another thing</h2>
+			<ul>
+				<li><a href="#">consequat molestie</a></li>
+				<li><a href="#">sem justo</a></li>
+				<li><a href="#">semper</a></li>
+				<li><a href="#">sociis natoque</a></li>
+			</ul>
+			<h2>Third and last</h2>
+			<ul>
+				<li><a href="#">sociis natoque</a></li>
+				<li><a href="#">magna sed purus</a></li>
+				<li><a href="#">tincidunt</a></li>
+				<li><a href="#">consequat molestie</a></li>
+			</ul>
+		</div>
+		<div class="clearer"><span></span></div>
+	</div>
+	{% include "__footer.html" %}
+</div>
+</body>
+</html>

@@ -1,0 +1,25 @@
+{% extends "__index.html" %}
+{% load i18n %}
+
+{% block title %} {% trans "Load category" %}{{category_name}} from eBay.com {% endblock %}
+
+{% block content %}
+
+<h1>{% blocktrans %} Load category {{category_name}} from eBay.com{% endblocktrans %}</h1>
+  <progress max="{{ all_items }}" value="{{ loaded_items }}"></progress>
+  <p>
+    {%trans "Pocessing" %} {{ all_items }}
+  </p>
+  <p>
+    {%trans "Loaded" %} {{ loaded_items }}
+  </p>
+{% endblock %}
+
+{% block sidenav %}
+			<h2>{% trans "Categories" %}</h2>
+				<ul>
+				{% for cat in categories %}
+				    <li> <a href="/ebay_parse/{{cat.ebay_category_id}}">{{ cat.ebay_category_name }}</a></li>
+				{% endfor %}
+				</ul>			
+{% endblock %}

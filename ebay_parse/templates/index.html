@@ -1,13 +1,12 @@
 {% extends "__index.html" %}
 
-{% block title %} Load category {{category_name}} from eBay.com {% endblock %}
+{% block title %} Load eBay items from ebay.com {% endblock %}
 
 {% block content %}
 
-<h1>Load category {{category_name}} from eBay.com</h1>
-  <progress max="{{ all_items }}" value="{{ loaded_items }}"/>
-    Загружено на <span id="value">{{ loaded_items }}</span>
-    
+<h1>Load eBay items from ebay.com</h1>
+    <p>You can load item from <a href="https://www.ebay.com/sch/-/3215/i.html">eBay.com</a> into my database. The fossils is very intereced for me ^)</p>
+    <p>You can selecting the category in the right menu and download it. This data will been use for analitycs.</p>
 {% endblock %}
 
 {% block sidenav %}

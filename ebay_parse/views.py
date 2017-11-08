@@ -17,6 +17,7 @@ from oauthlib.common import Request
 from django.template.context import RequestContext
 
 def category(request, category_id):
+    template = loader.get_template("category.html")
     response = findItemsByCategory(categoryId=str(category_id))
     api_resp = json.loads(response.decode('utf-8'))
     items = api_resp['findItemsByCategoryResponse'][0]['searchResult'][0]['item']
@@ -87,9 +88,8 @@ def category(request, category_id):
         row.loadIcon(str(item['galleryURL'][0]))
         row.save()
 
-    template = loader.get_template("index.html")
     context = {'all_items': all_items, 
-                'loaded_items': loaded_items,
+                'loaded_items': all_items - loaded_items,
                 'category_name': category_name,
                 'categories': eBayCategory.objects.all(),
                 }
@@ -97,7 +97,15 @@ def category(request, category_id):
 
 # Create your views here.
 def index(request):
-    return category(request, 165708)
+    template = loader.get_template("index.html")
+    context = {
+                'categories': eBayCategory.objects.all(),
+                }
+    return HttpResponse(template.render(context, request))
+
+def getItem(request, item_id):
+    content = GetSingleItem(item_id)
+    return HttpResponse(content)
 
 def get_response(operation_name, data, encoding, **headers):
     globalId = 'EBAY-US'
@@ -118,6 +126,34 @@ def get_response(operation_name, data, encoding, **headers):
        res = urllib.request.urlopen(req)
     except Exception as e:
        return str(e)
+    data = res.read()
+    return data
+
+def GetSingleItem(item_id, include_selector=None, encoding="JSON"):
+    user_params = {
+        'callname': GetSingleItem.__name__,
+        'responseencoding': encoding,
+        'ItemID': item_id,
+        'version': 967,
+        'IncludeSelector': 'Details, TextDescription,ItemSpecifics'
+        }
+
+    if include_selector:
+        user_params['IncludeSelector'] = include_selector
+        
+    app_id = Setting.objects.filter(setting_name='AppID').values('setting_value')[0]['setting_value']
+    version = 967
+    endpoint = 'http://open.api.ebay.com/shopping?'
+
+    d = dict(appid=app_id, siteid=0, version=version)
+
+    d.update(user_params)
+
+    try:
+        req = urllib.request.Request(endpoint + urllib.parse.urlencode(d), method='GET')
+        res = urllib.request.urlopen(req)
+    except Exception as e:
+        return str(e)
     data = res.read()
     return data
 

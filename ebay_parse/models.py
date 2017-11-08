@@ -36,22 +36,24 @@ class eBayItem(models.Model):
     ebay_item_description = models.TextField(null=True, blank=True)
 
     def loadIcon(self, url):
-	    try:
-		    myItem = eBayItem.objects.get(pk = self.ebay_item_id)
-		    if myItem.ebay_gallery_icon == 'icons/blank.png':
-			    result = urllib.request.urlretrieve(url)
-			    self.ebay_gallery_icon.save(
+        try:
+            myItem = eBayItem.objects.get(pk = self.ebay_item_id)
+            if myItem.ebay_gallery_icon == 'icons/blank.png':
+                result = urllib.request.urlretrieve(url)
+                self.ebay_gallery_icon.save(
 				os.path.basename(url),
 				ImageFile(open(result[0], 'rb'))
 			    )
-		    else:
-			    self.ebay_gallery_icon = myItem.ebay_gallery_icon
-	    except eBayItem.DoesNotExist:
-		    result = urllib.request.urlretrieve(url)
-		    self.ebay_gallery_icon.save(
+                os.remove(result[0])
+            else:
+                self.ebay_gallery_icon = myItem.ebay_gallery_icon
+        except eBayItem.DoesNotExist:
+            result = urllib.request.urlretrieve(url)
+            self.ebay_gallery_icon.save(
 			os.path.basename(url),
 			ImageFile(open(result[0], 'rb'))
 		    )
+            os.remove(result[0])
 
 class eBayCategory(models.Model):
     ebay_category_id = models.AutoField()
@@ -74,5 +76,5 @@ class ListingType(models.Model):
 
 #Модель для хранения фоток лота
 class eBayItemGallery(models.Model):
-    ebay_item_id = models.ForeignKey('eBayItem', on_delete=models.CASCADE)
+    ebay_item = models.ForeignKey('eBayItem', on_delete=models.CASCADE)
     ebay_item_image = models.ImageField(upload_to='imgs')

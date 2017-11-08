@@ -1,7 +1,8 @@
 from django.http import HttpResponse
-from django.shortcuts import render
-from django.template import RequestContext, loader
+from django.template import loader
+from django.core.files.images import ImageFile
 
+import os
 import json 
 from lxml import etree
 import urllib.request
@@ -12,9 +13,10 @@ from .models import Setting
 from .models import eBayCategory
 from .models import eBayItem
 from .models import eBayPaymentMethod
-from django.template.context_processors import request
-from oauthlib.common import Request
-from django.template.context import RequestContext
+from .models import eBayItemGallery
+from fileinput import filename
+
+
 
 def category(request, category_id):
     template = loader.get_template("category.html")
@@ -42,7 +44,7 @@ def category(request, category_id):
             watch_count = 0
 
         try:
-             postalcode = str(item['postalCode'][0])
+            postalcode = str(item['postalCode'][0])
         except KeyError:
             postalcode = 0
         price = float(item['sellingStatus'][0]['currentPrice'][0]['__value__'])
@@ -104,8 +106,22 @@ def index(request):
     return HttpResponse(template.render(context, request))
 
 def getItem(request, item_id):
-    content = GetSingleItem(item_id)
-    return HttpResponse(content)
+    response = GetSingleItem(item_id)
+    content = json.loads(response.decode('utf-8'))
+    myItem = eBayItem.objects.get(pk = item_id)
+    if myItem.ebay_item_description == None:
+        for img in content['Item']['PictureURL']:
+            row = eBayItemGallery(ebay_item = myItem  )
+            result = urllib.request.urlretrieve(str(img))       
+            row.save()
+            filename = os.path.basename(str(img))
+            row.ebay_item_image.save(filename[:filename.find('?')],ImageFile(open(result[0], 'rb')))
+            row.save()
+            os.remove(result[0])
+            
+        myItem.ebay_item_description = content['Item']['Description']
+        myItem.save()
+    return HttpResponse(response)
 
 def get_response(operation_name, data, encoding, **headers):
     globalId = 'EBAY-US'

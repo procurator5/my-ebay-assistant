@@ -14,6 +14,7 @@ class Setting(models.Model):
     setting_comment = models.CharField(max_length=256)
     setting_comment.null = True
 
+#Модель для хранения отдельных лотов eBay
 class eBayItem(models.Model):
     ebay_item_id = models.BigIntegerField()
     ebay_item_id.primary_key = True
@@ -32,6 +33,7 @@ class eBayItem(models.Model):
     listing_type = models.ForeignKey('ListingType', on_delete = models.SET_NULL, null=True, blank=True)
     ebay_watch_count = models.IntegerField()
     ebay_gallery_icon = models.ImageField(default=load_empty_image, upload_to='icons')
+    ebay_item_description = models.TextField(null=True, blank=True)
 
     def loadIcon(self, url):
 	    try:
@@ -69,3 +71,8 @@ class Country(models.Model):
 class ListingType(models.Model):
     listing_type_id = models.AutoField(primary_key = True)
     listing_type_name = models.CharField(max_length = 64)
+
+#Модель для хранения фоток лота
+class eBayItemGallery(models.Model):
+    ebay_item_id = models.ForeignKey('eBayItem', on_delete=models.CASCADE)
+    ebay_item_image = models.ImageField(upload_to='imgs')

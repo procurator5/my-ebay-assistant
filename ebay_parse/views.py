@@ -15,6 +15,8 @@ from .models import eBayItem
 from .models import eBayPaymentMethod
 from .models import eBayItemGallery
 from fileinput import filename
+from pip._vendor.distlib.util import proceed
+from pyasn1.compat.octets import null
 
 
 
@@ -47,7 +49,11 @@ def category(request, category_id):
             postalcode = str(item['postalCode'][0])
         except KeyError:
             postalcode = 0
-        price = float(item['sellingStatus'][0]['currentPrice'][0]['__value__'])
+            
+        try:
+            price = float(item['sellingStatus'][0]['currentPrice'][0]['__value__'])
+        except KeyError:
+            price = 0
 
         try:
             shipping_price = float(item['shippingInfo'][0]['shippingServiceCost'][0]['__value__'])
@@ -71,29 +77,35 @@ def category(request, category_id):
         except ListingType.DoesNotExist:
             listing = ListingType(listing_type_name=str(item['listingInfo'][0]['listingType'][0]))
             listing.save()
-
-        row = eBayItem(ebay_item_id=int(item['itemId'][0]),
-            ebay_item_title=str(item['title'][0]),
-            ebay_item_postalcode=postalcode,
-            ebay_item_price=price,
-            ebay_item_shipping_price=shipping_price,
-            ebay_item_starttime=str(item['listingInfo'][0]['startTime'][0]),
-            ebay_item_endtime=str(item['listingInfo'][0]['endTime'][0]),
-            ebay_watch_count=watch_count,
-            ebay_category=cat,
-            ebay_item_url=str(item['viewItemURL'][0]),
-            ebay_item_location=str(item['location'][0]),
-            country=country,
-            payment_method=method,
-            listing_type=listing
-    )
-        row.loadIcon(str(item['galleryURL'][0]))
+        
+        row = eBayItem(ebay_item_id=int(item['itemId'][0]))
+        if eBayItem.objects.filter(ebay_item_id = int(item['itemId'][0])).exists():
+            row.refresh_from_db()
+        row.ebay_item_title=str(item['title'][0])
+        row.ebay_item_postalcode=postalcode
+        row.ebay_item_price=price
+        row.ebay_item_shipping_price=shipping_price
+        row.ebay_category = cat
+        row.ebay_item_starttime=str(item['listingInfo'][0]['startTime'][0])
+        row.ebay_item_endtime=str(item['listingInfo'][0]['endTime'][0])
+        row.ebay_watch_count=watch_count
+        row.ebay_item_url=str(item['viewItemURL'][0])
+        row.ebay_item_location=str(item['location'][0])
+        row.country=country
+        row.payment_method=method
+        row.listing_type=listing
         row.save()
+        row.loadIcon(str(item['galleryURL'][0]))
+        
+    #Вычисляем, что надо подгрузить
+    proceseedItems = eBayItem.objects.filter(ebay_item_description = None, ebay_category = cat).all()
 
     context = {'all_items': all_items, 
                 'loaded_items': all_items - loaded_items,
                 'category_name': category_name,
                 'categories': eBayCategory.objects.all(),
+                'proceseed_items': proceseedItems,
+                'proceseed_items_count': proceseedItems.count(),
                 }
     return HttpResponse(template.render(context, request))
 
@@ -121,7 +133,7 @@ def getItem(request, item_id):
             
         myItem.ebay_item_description = content['Item']['Description']
         myItem.save()
-    return HttpResponse(response)
+    return HttpResponse(content['Item']['Description'])
 
 def get_response(operation_name, data, encoding, **headers):
     globalId = 'EBAY-US'

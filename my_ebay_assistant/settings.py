@@ -11,11 +11,18 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
-from django.conf.global_settings import LOCALE_PATHS
+from django.conf.global_settings import LOCALE_PATHS, MEDIA_ROOT, MEDIA_URL
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+
+# путь до папки media, в общем случае она пуста в начале
+
+MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'media')
+MEDIA_URL = '/media/'  # URL для медии в шаблонах
 
 
 # Quick-start development settings - unsuitable for production
@@ -139,5 +146,4 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
-    BASE_DIR + "static"
 )

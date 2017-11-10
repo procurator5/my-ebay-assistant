@@ -60,6 +60,7 @@ class eBayCategory(models.Model):
     ebay_category_id.primary_key = True
     ebay_category_name = models.CharField(max_length=256)
     ebay_category_parent = models.ForeignKey('eBayCategory', on_delete=models.DO_NOTHING, null = True, blank = True )
+    ebay_category_enabled = models.BooleanField(default = False)
 
 class eBayPaymentMethod(models.Model):
     payment_method_id = models.AutoField()

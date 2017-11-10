@@ -51,7 +51,7 @@ def category(request, category_id):
     context = {'all_items': all_items, 
                 'loaded_items': all_items - loaded_items,
                 'category_name': category_name,
-                'categories': eBayCategory.objects.all(),
+                'categories': eBayCategory.objects.filter(ebay_category_enabled = True),
                 'proceseed_items': proceseedItems,
                 'proceseed_items_count': proceseedItems.count(),
                 'response': response,
@@ -64,7 +64,7 @@ def category(request, category_id):
 def index(request):
     template = loader.get_template("index.html")
     context = {
-                'categories': eBayCategory.objects.all(),
+                'categories': eBayCategory.objects.filter(ebay_category_enabled = True),
                 }
     return HttpResponse(template.render(context, request))
 

@@ -53,6 +53,13 @@
 
 <h1>{% blocktrans %} Load category {{category_name}} from eBay.com{% endblocktrans %}</h1>
 <h2>Details</h2>
+  <p>
+  {% trans "Ebay's API says me:" %}
+  <ul>
+  <li>{% trans "Total entries" %} {{entries}}</li>
+  <li>{% trans "Total pages:" %} {{pages}}</li>
+  </ul>
+  </p>
   <progress max="{{ all_items }}" value="{{ loaded_items }}"></progress>
   <p>
     {%trans "Processing" %} {{ all_items }}
@@ -78,6 +85,10 @@
   </tr>
   {% endfor %}
   </table>
+  <h2>JSON reply</h2>
+  <p>
+  {{response}}
+  </p>
 {% endblock %}
 
 {% block sidenav %}

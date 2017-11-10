@@ -17,6 +17,8 @@ from .models import eBayItemGallery
 from fileinput import filename
 from pip._vendor.distlib.util import proceed
 from pyasn1.compat.octets import null
+from reportlab.platypus.para import PageNumberObject
+from django.contrib.admin.templatetags.admin_list import pagination
 
 
 
@@ -25,15 +27,54 @@ def category(request, category_id):
     response = findItemsByCategory(categoryId=str(category_id))
     api_resp = json.loads(response.decode('utf-8'))
     items = api_resp['findItemsByCategoryResponse'][0]['searchResult'][0]['item']
-    all_items = 0
-    loaded_items = 0
 
     category_name = str(items[0]['primaryCategory'][0]['categoryName'][0])
     cat = eBayCategory(ebay_category_id=int(items[0]['primaryCategory'][0]['categoryId'][0]),
             ebay_category_name=category_name
     )
     cat.save()
+    
+    pages = int(api_resp['findItemsByCategoryResponse'][0]['paginationOutput'][0]['totalPages'][0])
+    entries = int(api_resp['findItemsByCategoryResponse'][0]['paginationOutput'][0]['totalEntries'][0])
 
+    all_items = 0
+    loaded_items = 0 
+    for i in range(pages):
+        (alli, loaded) = getOnePageFromCategory(category_id, i+1, cat)
+        all_items += alli
+        loaded_items += loaded 
+
+        
+    #Вычисляем, что надо подгрузить
+    proceseedItems = eBayItem.objects.filter(ebay_item_description = None, ebay_category = cat).all()
+
+    context = {'all_items': all_items, 
+                'loaded_items': all_items - loaded_items,
+                'category_name': category_name,
+                'categories': eBayCategory.objects.all(),
+                'proceseed_items': proceseedItems,
+                'proceseed_items_count': proceseedItems.count(),
+                'response': response,
+                'pages': pages,
+                'entries':entries,
+                }
+    return HttpResponse(template.render(context, request))
+
+# Create your views here.
+def index(request):
+    template = loader.get_template("index.html")
+    context = {
+                'categories': eBayCategory.objects.all(),
+                }
+    return HttpResponse(template.render(context, request))
+
+def getOnePageFromCategory(category_id, pageNumber, cat):
+    response = findItemsByCategory(categoryId=str(category_id), paginationInput = {'entriesPerPage': "100",
+                                                                                   'pageNumber': str(pageNumber)})
+    api_resp = json.loads(response.decode('utf-8'))
+    items = api_resp['findItemsByCategoryResponse'][0]['searchResult'][0]['item']
+    all_items = 0
+    loaded_items = 0
    
     for item in items:
         all_items += 1
@@ -97,25 +138,8 @@ def category(request, category_id):
         row.save()
         row.loadIcon(str(item['galleryURL'][0]))
         
-    #Вычисляем, что надо подгрузить
-    proceseedItems = eBayItem.objects.filter(ebay_item_description = None, ebay_category = cat).all()
+    return (all_items, loaded_items) 
 
-    context = {'all_items': all_items, 
-                'loaded_items': all_items - loaded_items,
-                'category_name': category_name,
-                'categories': eBayCategory.objects.all(),
-                'proceseed_items': proceseedItems,
-                'proceseed_items_count': proceseedItems.count(),
-                }
-    return HttpResponse(template.render(context, request))
-
-# Create your views here.
-def index(request):
-    template = loader.get_template("index.html")
-    context = {
-                'categories': eBayCategory.objects.all(),
-                }
-    return HttpResponse(template.render(context, request))
 
 def getItem(request, item_id):
     response = GetSingleItem(item_id)

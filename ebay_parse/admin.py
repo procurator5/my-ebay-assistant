@@ -2,17 +2,15 @@ from django.contrib import admin
 
 from .models import Setting
 from .models import eBayCategory
-from xdiagnose.info import SHORT_DESCRIPTION
 from Onboard.KeyCommon import actions
+from mptt.admin import MPTTModelAdmin
+from mptt.admin import DraggableMPTTAdmin
 
 class SettingAdmin(admin.ModelAdmin):
     list_display=('setting_name', 'setting_value')
     
-class eBayCategoryAdmin(admin.ModelAdmin):
-    list_display=('ebay_category_id', 'ebay_category_name', 'ebay_category_parent','ebay_category_enabled')
-    search_fields = ['ebay_category_name']
+class eBayCategoryAdmin(DraggableMPTTAdmin):
     list_editable = ['ebay_category_enabled']
-    
     actions = ['loadCategories']
     
     def loadCategories(self, request, queryset):
@@ -22,4 +20,13 @@ class eBayCategoryAdmin(admin.ModelAdmin):
 
 # Register your models here.
 admin.site.register(Setting, SettingAdmin)
-admin.site.register(eBayCategory, eBayCategoryAdmin)
+admin.site.register(eBayCategory, eBayCategoryAdmin,
+    list_display=(
+        'tree_actions',
+        'ebay_category_name',
+        'ebay_category_enabled',
+        # ...more fields if you feel like it...
+    ),
+    list_display_links=(
+        'ebay_category_name',
+    ),)

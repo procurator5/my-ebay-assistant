@@ -2,6 +2,7 @@ from django.core.files.images import ImageFile
 from django.db import models
 import os
 import urllib
+from mptt.models import MPTTModel, TreeForeignKey
 
 
 # Create your models here.
@@ -55,11 +56,11 @@ class eBayItem(models.Model):
 		    )
             os.remove(result[0])
 
-class eBayCategory(models.Model):
+class eBayCategory(MPTTModel):
     ebay_category_id = models.AutoField()
     ebay_category_id.primary_key = True
     ebay_category_name = models.CharField(max_length=256)
-    ebay_category_parent = models.ForeignKey('eBayCategory', on_delete=models.DO_NOTHING, null = True, blank = True )
+    parent = TreeForeignKey('self', null = True, blank = None, related_name = 'children' )
     ebay_category_enabled = models.BooleanField(default = False)
 
 class eBayPaymentMethod(models.Model):

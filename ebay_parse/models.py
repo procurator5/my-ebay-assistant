@@ -5,6 +5,7 @@ import urllib
 from mptt.models import MPTTModel, TreeForeignKey
 
 
+
 # Create your models here.
 def load_empty_image():
     return "icons/blank.png"

@@ -48,8 +48,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_cron',
     'mptt',
     'ebay_parse.apps.EbayParseConfig'
+]
+
+CRON_CLASSES = [
+    'ebay_parse.autoLoad'
 ]
 
 MIDDLEWARE = [

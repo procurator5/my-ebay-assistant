@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.template import loader
 from django.core.files.images import ImageFile
+from django_cron import CronJobBase, Schedule
 
 import os
 import json 
@@ -19,6 +20,7 @@ from pip._vendor.distlib.util import proceed
 from pyasn1.compat.octets import null
 from reportlab.platypus.para import PageNumberObject
 from django.contrib.admin.templatetags.admin_list import pagination
+from django_cron import CronJobBase
 
 
 
@@ -274,5 +276,12 @@ def findItemsByCategory(
 
     request = etree.tostring(root, pretty_print=True)
     return get_response(findItemsByCategory.__name__, request, encoding)
+
+class AutoLoadItems(CronJobBase):
+    schedule = Schedule(run_every_mins=120)
+    code = 'ebay_parse.autoLoad'
+    
+    def do(self):
+        pass
 
 

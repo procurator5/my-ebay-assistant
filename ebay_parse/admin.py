@@ -8,13 +8,16 @@ from mptt.admin import DraggableMPTTAdmin
 
 import urllib.request
 import json
+from django.contrib.admin.templatetags.admin_list import admin_list_filter
+from ebay_parse.views import category
 
 class SettingAdmin(admin.ModelAdmin):
     list_display=('setting_name', 'setting_value')
     
 class eBayCategoryAdmin(DraggableMPTTAdmin):
     list_editable = ['ebay_category_enabled']
-    actions = ['loadCategories']
+    actions = ['loadCategories', 'enableCategoyWithParents']
+    search_fields = [ 'ebay_category_name' ]
     
     def loadCategories(self, request, queryset):
         self.stepLoadCategory(-1)
@@ -34,6 +37,16 @@ class eBayCategoryAdmin(DraggableMPTTAdmin):
             if int(category['CategoryID']) != category_id: 
                 print(category['CategoryID'])
                 self.stepLoadCategory(int(category['CategoryID']))
+                
+    def enableCategoyWithParents(self, request, queryset):
+        for category in queryset:
+            self.enableCategoryrecursive(category)
+            
+    def enableCategoryrecursive(self, category):
+        category.ebay_category_enabled=True
+        category.save()
+        for sub in category.get_children():
+            self.enableCategoryrecursive(sub)
         
     
     loadCategories.short_description = 'Load Categories from eBay.com'

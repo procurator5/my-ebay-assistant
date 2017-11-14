@@ -1,0 +1,26 @@
+[
+  {
+    "model": "ebay_parse.Settings",
+    "pk": 1,
+    "fields": {
+      "setting_name": "CertID",
+      "setting_value": "secret Ebay access key"
+    }
+  },
+  {
+    "model": "ebay_parse.Settings",
+    "pk": 2,
+    "fields": {
+      "setting_name": "AppID",
+      "setting_value": "secret Ebay access key"
+    }
+  },
+  {
+    "model": "ebay_parse.Settings",
+    "pk": 3,
+    "fields": {
+      "setting_name": "DevID",
+      "setting_value": "secret Ebay access key"
+    }
+  }
+]

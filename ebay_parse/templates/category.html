@@ -85,17 +85,26 @@
   </tr>
   {% endfor %}
   </table>
-  <h2>JSON reply</h2>
+  <h2>Error Information</h2>
   <p>
-  {{response}}
+  
   </p>
 {% endblock %}
 
 {% block sidenav %}
-			<h2>{% trans "Categories" %}</h2>
-				<ul>
-				{% for cat in categories %}
-				    <li> <a href="/ebay_parse/{{cat.ebay_category_id}}">{{ cat.ebay_category_name }}</a></li>
-				{% endfor %}
+{% load mptt_tags %}
+				<h2>Categories</h2>
+				<ul class="root">
+				    {% recursetree nodes %}
+				        <li>
+				        <a href="/ebay_parse/{{node.ebay_category_id}}/">
+				            {{ node.space }} {{ node.ebay_category_name }}
+				        </a>
+			            {% if not node.is_leaf_node %}
+			                <ul class="children">
+			                   {{ children }}
+			                </ul>
+			            {% endif %}
+	               {% endrecursetree %}
 				</ul>			
 {% endblock %}

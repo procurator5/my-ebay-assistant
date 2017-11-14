@@ -51,10 +51,9 @@ def category(request, category_id):
     context = {'all_items': all_items, 
                 'loaded_items': all_items - loaded_items,
                 'category_name': category_name,
-                'categories': eBayCategory.objects.filter(ebay_category_enabled = True),
+                'nodes': eBayCategory.objects.filter(ebay_category_enabled = True),
                 'proceseed_items': proceseedItems,
                 'proceseed_items_count': proceseedItems.count(),
-                'response': response,
                 'pages': pages,
                 'entries':entries,
                 }
@@ -64,7 +63,7 @@ def category(request, category_id):
 def index(request):
     template = loader.get_template("index.html")
     context = {
-                'categories': eBayCategory.objects.filter(ebay_category_enabled = True),
+                'nodes': eBayCategory.objects.filter(ebay_category_enabled = True),
                 }
     return HttpResponse(template.render(context, request))
 
@@ -136,7 +135,10 @@ def getOnePageFromCategory(category_id, pageNumber, cat):
         row.payment_method=method
         row.listing_type=listing
         row.save()
-        row.loadIcon(str(item['galleryURL'][0]))
+        try:
+            row.loadIcon(str(item['galleryURL'][0]))
+        except KeyError:
+            pass
         
     return (all_items, loaded_items) 
 

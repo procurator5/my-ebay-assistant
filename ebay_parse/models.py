@@ -3,6 +3,7 @@ from django.db import models
 import os
 import urllib
 from mptt.models import MPTTModel, TreeForeignKey
+from itertools import repeat
 
 
 
@@ -63,6 +64,8 @@ class eBayCategory(MPTTModel):
     ebay_category_name = models.CharField(max_length=256)
     parent = TreeForeignKey('self', null = True, blank = None, related_name = 'children' )
     ebay_category_enabled = models.BooleanField(default = False)
+    def space(self):
+        return '--' * self.get_level() + '>'
 
 class eBayPaymentMethod(models.Model):
     payment_method_id = models.AutoField()

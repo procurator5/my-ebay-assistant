@@ -279,9 +279,44 @@ def findItemsByCategory(
 
 class AutoLoadItems(CronJobBase):
     schedule = Schedule(run_every_mins=120)
-    code = 'ebay_parse.autoLoad'
+    code = 'ebay_parse.AutoLoadItems'
     
     def do(self):
-        pass
+        category_id = 165707
+        response = findItemsByCategory(categoryId=str(category_id))
+        api_resp = json.loads(response.decode('utf-8'))
+        items = api_resp['findItemsByCategoryResponse'][0]['searchResult'][0]['item']
+    
+        cat = eBayCategory.objects.get(ebay_category_id=int(items[0]['primaryCategory'][0]['categoryId'][0]))
+        
+        pages = int(api_resp['findItemsByCategoryResponse'][0]['paginationOutput'][0]['totalPages'][0])
+        entries = int(api_resp['findItemsByCategoryResponse'][0]['paginationOutput'][0]['totalEntries'][0])
+    
+        all_items = 0
+        loaded_items = 0 
+        for i in range(pages):
+            (alli, loaded) = getOnePageFromCategory(category_id, i+1, cat)
+            all_items += alli
+            loaded_items += loaded 
+    
+            
+        #Загружаем детальную информацию
+        for item in eBayItem.objects.filter(ebay_item_description = None, ebay_category = cat).all():
+            response = GetSingleItem(item.ebay_item_id)
+            content = json.loads(response.decode('utf-8'))
+            if item.ebay_item_description == None:
+                for img in content['Item']['PictureURL']:
+                    row = eBayItemGallery(ebay_item = item  )
+                    result = urllib.request.urlretrieve(str(img))       
+                    row.save()
+                    filename = os.path.basename(str(img))
+                    row.ebay_item_image.save(filename[:filename.find('?')],ImageFile(open(result[0], 'rb')))
+                    row.save()
+                    os.remove(result[0])
+                    
+                item.ebay_item_description = content['Item']['Description']
+                item.save()
+            
+
 
 

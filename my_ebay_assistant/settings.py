@@ -54,7 +54,7 @@ INSTALLED_APPS = [
 ]
 
 CRON_CLASSES = [
-    'ebay_parse.autoLoad'
+    'ebay_parse.views.AutoLoadItems'
 ]
 
 MIDDLEWARE = [

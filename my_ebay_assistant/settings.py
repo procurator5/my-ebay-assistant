@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_cron',
     'mptt',
-    'ebay_parse.apps.EbayParseConfig'
+    'ebay_parse.apps.EbayParseConfig',
+    'species.apps.SpeciesConfig',
 ]
 
 CRON_CLASSES = [

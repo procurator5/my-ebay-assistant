@@ -21,6 +21,7 @@ from django.conf import settings
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^admin_tools/', include('admin_tools.urls')),
     url(r'^ebay_parse/', include('ebay_parse.urls')),
 ]
 

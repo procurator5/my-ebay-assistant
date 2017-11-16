@@ -4,6 +4,8 @@ import os
 import urllib
 from mptt.models import MPTTModel, TreeForeignKey
 from itertools import repeat
+from csv import excel
+from symbol import except_clause
 
 
 
@@ -16,6 +18,21 @@ class Setting(models.Model):
     setting_value = models.CharField(max_length=128)
     setting_comment = models.CharField(max_length=256)
     setting_comment.null = True
+    
+    def getIntValue(name):
+        try:
+            return int( Setting.objects.filter(setting_name=name).values('setting_value')[0]['setting_value'])
+        except IndexError:
+            return 0
+
+    def getValue(name):
+        try:
+            return Setting.objects.filter(setting_name=name).values('setting_value')[0]['setting_value']
+        except IndexError:
+            return ''
+    
+    getValue = staticmethod(getValue)
+    getIntValue = staticmethod(getIntValue)
 
 #Модель для хранения отдельных лотов eBay
 class eBayItem(models.Model):

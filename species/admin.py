@@ -38,8 +38,6 @@ class SpeciesAdmin(admin.ModelAdmin):
     def import_action(self, request, *args, **kwargs):
         # custom view which should return an HttpResponse
         self.message_user(request, 'Loaded success...')  
-        print('qqqqqqqqqqqqqqqq\n')  
-
         url = reverse('admin:%s_%s_changelist' % self.get_model_info(),
                           current_app=self.admin_site.name)
         return HttpResponseRedirect(url)    

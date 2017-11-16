@@ -167,7 +167,7 @@ def get_response(operation_name, data, encoding, **headers):
     globalId = 'EBAY-US'
     # take app_name from database
 
-    app_name = Setting.objects.filter(setting_name='AppID').values('setting_value')[0]['setting_value']
+    app_name = Setting.getValue('AppID')
     endpoint = 'http://svcs.ebay.com/services/search/FindingService/v1'
 
     http_headers = {
@@ -197,7 +197,7 @@ def GetSingleItem(item_id, include_selector=None, encoding="JSON"):
     if include_selector:
         user_params['IncludeSelector'] = include_selector
         
-    app_id = Setting.objects.filter(setting_name='AppID').values('setting_value')[0]['setting_value']
+    app_id = Setting.getValue('AppID')
     version = 967
     endpoint = 'http://open.api.ebay.com/shopping?'
 
@@ -278,20 +278,18 @@ def findItemsByCategory(
     return get_response(findItemsByCategory.__name__, request, encoding)
 
 class AutoLoadItems(CronJobBase):
-    schedule = Schedule(run_every_mins=120)
+    RUN_EVERY_MINS = Setting.getIntValue('RunEveryMinLoad')
+    schedule = Schedule(run_every_mins=RUN_EVERY_MINS)
     code = 'ebay_parse.AutoLoadItems'
     
-    def do(self):
-        category_id = 165707
+    def loadOnlyOneCategory(self, category_id):
         response = findItemsByCategory(categoryId=str(category_id))
         api_resp = json.loads(response.decode('utf-8'))
         items = api_resp['findItemsByCategoryResponse'][0]['searchResult'][0]['item']
     
         cat = eBayCategory.objects.get(ebay_category_id=int(items[0]['primaryCategory'][0]['categoryId'][0]))
         
-        pages = int(api_resp['findItemsByCategoryResponse'][0]['paginationOutput'][0]['totalPages'][0])
-        entries = int(api_resp['findItemsByCategoryResponse'][0]['paginationOutput'][0]['totalEntries'][0])
-    
+        pages = int(api_resp['findItemsByCategoryResponse'][0]['paginationOutput'][0]['totalPages'][0])    
         all_items = 0
         loaded_items = 0 
         for i in range(pages):
@@ -316,7 +314,10 @@ class AutoLoadItems(CronJobBase):
                     
                 item.ebay_item_description = content['Item']['Description']
                 item.save()
-            
+
+    def do(self):
+        category_id = 165707
+        self.loadOnlyOneCategory(category_id)            
 
 
 

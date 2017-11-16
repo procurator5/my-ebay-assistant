@@ -5,10 +5,14 @@ from .models import eBayCategory
 from Onboard.KeyCommon import actions
 from mptt.admin import MPTTModelAdmin
 from mptt.admin import DraggableMPTTAdmin
+from django.conf.urls import url
+from django.http import HttpResponseRedirect, HttpResponse
+from django.core.urlresolvers import reverse
 
 import urllib.request
 import json
 from django.contrib.admin.templatetags.admin_list import admin_list_filter
+from django.http import HttpResponseRedirect
 from ebay_parse.views import category
 
 class SettingAdmin(admin.ModelAdmin):
@@ -16,13 +20,46 @@ class SettingAdmin(admin.ModelAdmin):
     
 class eBayCategoryAdmin(DraggableMPTTAdmin):
     list_editable = ['ebay_category_enabled']
-    actions = ['loadCategories', 'enableCategoyWithParents']
+    actions = [ 'enableCategoyWithParents' ]
     search_fields = [ 'ebay_category_name' ]
+
+    change_list_template = 'admin/ebay_parse/ebaycategory/change_list.html'
+    #: resource class
+    resource_class = None
+    #: import data encoding
+    from_encoding = "utf-8"
+    skip_admin_log = None
+    # storage class for saving temporary files
+    tmp_storage_class = None
+
+    def get_model_info(self):
+        # module_name is renamed to model_name in Django 1.8
+        app_label = self.model._meta.app_label
+        try:
+            return (app_label, self.model._meta.model_name,)
+        except AttributeError:
+            return (app_label, self.model._meta.module_name,)    
+
+    def get_urls(self):
+        urls = super(eBayCategoryAdmin, self).get_urls()
+        info = self.get_model_info()
+        my_urls = [
+            url(r'^load/$',
+                self.admin_site.admin_view(self.loadCategories),
+                name='%s_%s_load' % info),
+        ]
+        return my_urls + urls
+
     
-    def loadCategories(self, request, queryset):
-        self.stepLoadCategory(-1)
-        self.message_user(request, 'Loaded success...')
-        
+    def loadCategories(self, request, *args, **kwargs):
+        print(Setting.getIntValue('ParentCategory'))
+        self.stepLoadCategory(Setting.getIntValue('ParentCategory'))
+        self.message_user(request, 'Loaded success...')  
+        url = reverse('admin:%s_%s_changelist' % self.get_model_info(),
+                          current_app=self.admin_site.name)
+        return HttpResponseRedirect(url)    
+    
+            
     def stepLoadCategory(self, category_id):
         response = GetCategoryInfo(category_id, include_selector='ChildCategories' )
         api_resp = json.loads(response.decode('utf-8'))
@@ -32,10 +69,13 @@ class eBayCategoryAdmin(DraggableMPTTAdmin):
                                 ebay_category_name = category['CategoryName'],
                                 )
             if int(category['CategoryParentID']) != 0:
-                item.parent = eBayCategory.objects.get(ebay_category_id = int(category['CategoryParentID']))
+                try:
+                    item.parent = eBayCategory.objects.get(ebay_category_id = int(category['CategoryParentID']))
+                except eBayCategory.DoesNotExist:
+                    pass
+            
             item.save()
             if int(category['CategoryID']) != category_id: 
-                print(category['CategoryID'])
                 self.stepLoadCategory(int(category['CategoryID']))
                 
     def enableCategoyWithParents(self, request, queryset):

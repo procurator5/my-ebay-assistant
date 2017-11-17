@@ -12,3 +12,10 @@ class Species(models.Model):
     species_first_name = CharField(max_length = 128)
     species_last_name = CharField(max_length = 128)
     category = ForeignKey('ebay_parse.eBayCategory', on_delete=models.CASCADE)
+    
+class Scpecies2Item(models.Model):
+    species = ForeignKey('Species', on_delete=models.CASCADE)
+    item = ForeignKey('ebay_parse.eBayItem', on_delete=models.CASCADE)
+
+class stopWords(models.Model):
+    word = CharField(max_length = 256)

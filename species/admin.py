@@ -1,13 +1,19 @@
 from django.contrib import admin
-from .models import Species
+from .models import Species, Scpecies2Item, stopWords
 from django.conf.urls import url
-from ebay_parse.models import Setting
+import re
+import json
+
+from ebay_parse.models import Setting, eBayItem, eBayCategory
+
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
+from googletrans import Translator
+from species.models import stopWords
 
 # Register your models here.
 class SpeciesAdmin(admin.ModelAdmin):
-    list_display = ('species_name', 'category')
+    list_display = ('species_name', 'species_first_name','category')
     change_list_template = 'admin/species/species/change_list.html'
     #: resource class
     resource_class = None
@@ -37,9 +43,36 @@ class SpeciesAdmin(admin.ModelAdmin):
 
     def import_action(self, request, *args, **kwargs):
         # custom view which should return an HttpResponse
+        translator = Translator()
+        items = eBayItem.objects.all().values('ebay_item_title', 'ebay_item_id', 'ebay_category')
+        for item in items:
+            try:
+                russian = translator.translate(item['ebay_item_title'], dest='ru', src='en')
+            except json.decoder.JSONDecodeError as e:
+                self.message_user(request, str(e), message=messages.ERROR)
+            russian = re.sub(r'[^a-zA-Z ]', '', str(russian))
+            russian = re.sub(r'^Translatedsrcen destru text', '', russian)
+            russian = re.sub(r'pronunciationNone$', '', russian)            
+            russian = re.sub(r'\s+', ' ', russian)
+            russian = re.sub('^\s', '', russian)
+            if russian != '':
+                if not Species.objects.filter(species_name = russian).exists():
+                    eCategory = eBayCategory.objects.get(ebay_category_id = item['ebay_category'])
+                    species = Species(species_name = russian, category = eCategory)
+                    species.save()
+                    eItem = eBayItem.objects.get(ebay_item_id = item['ebay_item_id'])
+                    relation = Scpecies2Item(species = species, item = eItem)
+                    relation.save()
+                    
+
         self.message_user(request, 'Loaded success...')  
         url = reverse('admin:%s_%s_changelist' % self.get_model_info(),
                           current_app=self.admin_site.name)
         return HttpResponseRedirect(url)    
 
 admin.site.register(Species, SpeciesAdmin)
+admin.site.register(stopWords,
+                        list_display=(
+                            'word',
+                        )
+                    )

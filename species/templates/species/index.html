@@ -1,0 +1,28 @@
+{% extends "__index.html" %}
+{% load mptt_tags %}
+
+{% block title %} Species {% endblock %}
+
+{% block content %}
+
+<h1>Species</h1>
+    <p>You can load item from <a href="https://www.ebay.com/sch/-/3215/i.html">eBay.com</a> into my database. The fossils is very intereced for me ^)</p>
+    <p>You can selecting the category in the right menu and download it. This data will been use for analitycs.</p>
+{% endblock %}
+
+{% block sidenav %}
+				<h2>Categories</h2>
+				<ul class="root">
+				    {% recursetree nodes %}
+				        <li>
+				        <a href="/species/category/{{node.ebay_category_id}}/">
+				            {{ node.space }} {{ node.ebay_category_name }}
+				        </a>
+			            {% if not node.is_leaf_node %}
+			                <ul class="children">
+			                   {{ children }}
+			                </ul>
+			            {% endif %}
+	               {% endrecursetree %}
+				</ul>		
+{% endblock %}

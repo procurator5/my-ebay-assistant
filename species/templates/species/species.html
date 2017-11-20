@@ -1,0 +1,50 @@
+{% extends "__index.html" %}
+{% load mptt_tags %}
+{% load i18n %}
+
+{% block title %} Species {% endblock %}
+
+{% block content %}
+
+<h1>{{info.species_name}}</h1>
+<table>
+  <tr>
+    <td>Row 1: Col 1</td>
+    <td>
+    	<h2>{% trans "Common properties" %}</h2>
+    	{{info.species_first_name}}<br>
+		{{info.species_second_name}}<br>  
+		Category: {{info.ebay_category_name}} 
+		<h2> {% trans "Price" %} </h2>
+		
+		<ul>
+			<li>Avg price: {{info.avg}}</li>
+			<li>Min price: {{info.min}}</li>
+			<li>Max price: {{info.max}}</li>
+		</ul> 
+		<h2>Count of items</h2>
+		Count: {{info.count}}
+    </td>
+    
+  </tr>
+</table>
+
+
+{% endblock %}
+
+{% block sidenav %}
+				<h2>Categories</h2>
+				<ul class="root">
+				    {% recursetree nodes %}
+				        <li>
+				        <a href="/species/category/{{node.ebay_category_id}}/">
+				            {{ node.space }} {{ node.ebay_category_name }}
+				        </a>
+			            {% if not node.is_leaf_node %}
+			                <ul class="children">
+			                   {{ children }}
+			                </ul>
+			            {% endif %}
+	               {% endrecursetree %}
+				</ul>		
+{% endblock %}

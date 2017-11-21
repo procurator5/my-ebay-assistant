@@ -11,20 +11,19 @@ import urllib.request
 from .models import Country
 from .models import ListingType
 from .models import Setting
-from .models import eBayCategory
-from .models import eBayItem
-from .models import eBayPaymentMethod
-from .models import eBayItemGallery
+from .models import eBayCategory, eBayItem, eBayPaymentMethod, eBayItemGallery
 from fileinput import filename
 from pip._vendor.distlib.util import proceed
 from pyasn1.compat.octets import null
 from reportlab.platypus.para import PageNumberObject
 from django.contrib.admin.templatetags.admin_list import pagination
 from django_cron import CronJobBase
+from species.models import Species, Scpecies2Item
 
 
 
 def category(request, category_id):
+                                
     template = loader.get_template("category.html")
     response = findItemsByCategory(categoryId=str(category_id))
     api_resp = json.loads(response.decode('utf-8'))
@@ -70,6 +69,21 @@ def index(request):
     return HttpResponse(template.render(context, request))
 
 def getOnePageFromCategory(category_id, pageNumber, cat):
+    
+    def createSpeciesRelation(it):
+        species = Species.objects.filter(category = it.ebay_category).exclude( species_first_name = '' ).distinct("species_first_name")
+        for item in species:
+            if item.species_first_name in it.ebay_item_title:
+                #Род нашли, ищем вид
+                print(item.species_first_name)
+                sp2 = Species.objects.filter(category = it.ebay_category, species_first_name = item.species_first_name).exclude(species_last_name = '')
+                for it2 in sp2:
+                    if it2.species_last_name in it.ebay_item_title:
+                        #Нашли вид!
+                        relation = Scpecies2Item(species = it2, item = it)
+                        relation.save()
+                        print(it2.species_name)
+                            
     response = findItemsByCategory(categoryId=str(category_id), paginationInput = {'entriesPerPage': "100",
                                                                                    'pageNumber': str(pageNumber)})
     api_resp = json.loads(response.decode('utf-8'))
@@ -141,6 +155,7 @@ def getOnePageFromCategory(category_id, pageNumber, cat):
             row.loadIcon(str(item['galleryURL'][0]))
         except KeyError:
             pass
+        createSpeciesRelation(row)
         
     return (all_items, loaded_items) 
 

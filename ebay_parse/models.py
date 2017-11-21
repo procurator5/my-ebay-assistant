@@ -3,9 +3,7 @@ from django.db import models
 import os
 import urllib
 from mptt.models import MPTTModel, TreeForeignKey
-from itertools import repeat
-from csv import excel
-from symbol import except_clause
+
 
 
 
@@ -74,6 +72,7 @@ class eBayItem(models.Model):
 			ImageFile(open(result[0], 'rb'))
 		    )
             os.remove(result[0])
+                
 
 class eBayCategory(MPTTModel):
     ebay_category_id = models.AutoField()

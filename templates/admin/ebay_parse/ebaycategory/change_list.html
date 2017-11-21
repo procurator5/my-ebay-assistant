@@ -1,0 +1,8 @@
+{% extends "admin/change_list.html" %}
+{% load i18n %}
+{% load admin_urls %}
+
+{% block object-tools-items %}
+  <li><a href='{% url opts|admin_urlname:"load" %}' class="import_link">{% trans "Load categogies tree" %}</a></li>
+  {{ block.super }}
+{% endblock %}

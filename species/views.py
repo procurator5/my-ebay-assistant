@@ -26,9 +26,8 @@ def category(request, category_id):
 def species(request, species_id):
     template = loader.get_template("species/species.html")
 
-    print(Species.getSpeciesDetailInfo(species_id).avg)
     context = {
-                'info' : Species.getSpeciesDetailInfo(species_id),
+                'info' : Species.getSpeciesDetailInfo(species_id)[0],
                 'nodes': eBayCategory.objects.all(),
                 }
     return HttpResponse(template.render(context, request))

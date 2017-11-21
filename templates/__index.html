@@ -1,0 +1,45 @@
+﻿{% load static %}
+{% load i18n %}
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="description" content="description"/>
+<meta name="keywords" content="keywords"/> 
+<meta name="author" content="author"/> 
+<link rel="stylesheet" type="text/css" href="{% static 'default.css' %}"/>
+<title>{% block title %}Beautiful Day {% endblock title %}</title>
+<script type="text/javascript" language="javascript">
+{% block script %} {% endblock script %}
+</script>
+</head>
+<body>
+<div class="top">
+	<div class="header">
+		<div class="left">
+			{% trans "Ebay assistant" %}
+		</div>
+		<div class="right">
+		{% blocktrans %}
+			<h2>Tristique porta</h2>
+			<p>Fusce porta pede nec eros. Maecenas ipsum sem, interdum non, aliquam vitae, interdum nec, metus. Maecenas ornare lobortis risus.</p>
+		{% endblocktrans %}	
+		</div>
+	</div>	
+</div>
+<div class="container">	<div class="inner_copy"></div>
+	{% include "__navigation.html" %}
+	<div class="main">		
+		<div class="content">
+			{% block content %} {% endblock content %}
+		</div>
+		<div class="sidenav">
+			{% block sidenav %} {% endblock sidenav %}
+		</div>
+		<div class="clearer"><span></span></div>
+	</div>
+	{% include "__footer.html" %}
+</div>
+</body>
+</html>

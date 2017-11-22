@@ -3,6 +3,7 @@ from django.db import models
 import os
 import urllib
 from mptt.models import MPTTModel, TreeForeignKey
+from species.models import Scpecies2Item
 
 
 
@@ -52,6 +53,9 @@ class eBayItem(models.Model):
     ebay_watch_count = models.IntegerField()
     ebay_gallery_icon = models.ImageField(default=load_empty_image, upload_to='icons')
     ebay_item_description = models.TextField(null=True, blank=True)
+    
+    def relationIsExists(self):
+        return Scpecies2Item.objects.filter(item = self).exists()
 
     def loadIcon(self, url):
         try:

@@ -30,10 +30,14 @@ def category(request, category_id):
     items = api_resp['findItemsByCategoryResponse'][0]['searchResult'][0]['item']
 
     category_name = str(items[0]['primaryCategory'][0]['categoryName'][0])
-    cat = eBayCategory(ebay_category_id=int(items[0]['primaryCategory'][0]['categoryId'][0]),
-            ebay_category_name=category_name
-    )
-    cat.save()
+    
+    cat = eBayCategory.objects.get(ebay_category_id = int(items[0]['primaryCategory'][0]['categoryId'][0]))
+
+    if cat == None:
+        cat = eBayCategory(ebay_category_id=int(items[0]['primaryCategory'][0]['categoryId'][0]),
+                ebay_category_name=category_name
+        )
+        cat.save()
     
     pages = int(api_resp['findItemsByCategoryResponse'][0]['paginationOutput'][0]['totalPages'][0])
     entries = int(api_resp['findItemsByCategoryResponse'][0]['paginationOutput'][0]['totalEntries'][0])
@@ -75,14 +79,12 @@ def getOnePageFromCategory(category_id, pageNumber, cat):
         for item in species:
             if item.species_first_name in it.ebay_item_title:
                 #Род нашли, ищем вид
-                print(item.species_first_name)
                 sp2 = Species.objects.filter(category = it.ebay_category, species_first_name = item.species_first_name).exclude(species_last_name = '')
                 for it2 in sp2:
                     if it2.species_last_name in it.ebay_item_title:
                         #Нашли вид!
                         relation = Scpecies2Item(species = it2, item = it)
                         relation.save()
-                        print(it2.species_name)
                             
     response = findItemsByCategory(categoryId=str(category_id), paginationInput = {'entriesPerPage': "100",
                                                                                    'pageNumber': str(pageNumber)})
@@ -155,7 +157,8 @@ def getOnePageFromCategory(category_id, pageNumber, cat):
             row.loadIcon(str(item['galleryURL'][0]))
         except KeyError:
             pass
-        createSpeciesRelation(row)
+        if not row.relationIsExists():
+            createSpeciesRelation(row)
         
     return (all_items, loaded_items) 
 

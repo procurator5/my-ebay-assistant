@@ -72,6 +72,16 @@ class eBayItem(models.Model):
 			ImageFile(open(result[0], 'rb'))
 		    )
             os.remove(result[0])
+            
+    def getItemsForSpecies(species_id):
+        return eBayItem.objects.raw("""
+        SELECT ebi.* 
+            FROM ebay_parse_ebayitem ebi
+            JOIN species_scpecies2item si ON si.item_id = ebi.ebay_item_id
+            WHERE si.species_id =%s; 
+        """, params = [species_id])
+        
+    getItemsForSpecies = staticmethod(getItemsForSpecies)
                 
 
 class eBayCategory(MPTTModel):

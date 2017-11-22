@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import loader
 
-from ebay_parse.models import eBayCategory
+from ebay_parse.models import eBayCategory, eBayItem
 from .models import Species
 
 # Create your views here.
@@ -29,5 +29,6 @@ def species(request, species_id):
     context = {
                 'info' : Species.getSpeciesDetailInfo(species_id)[0],
                 'nodes': eBayCategory.objects.all(),
+                'items': eBayItem.getItemsForSpecies(species_id)
                 }
     return HttpResponse(template.render(context, request))

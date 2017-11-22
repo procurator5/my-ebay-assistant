@@ -3,8 +3,6 @@ from django.db.models.fields.related import ForeignKey
 from django.db.models.fields import CharField
 from django.db import connection
 
-from ebay_parse.models import eBayCategory 
-from ebay_parse.models import eBayItem
 from django.db.models.fields.files import ImageField
 
 # Create your models here.

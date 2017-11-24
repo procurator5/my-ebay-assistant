@@ -13,7 +13,7 @@ from species.models import stopWords
 
 # Register your models here.
 class SpeciesAdmin(admin.ModelAdmin):
-    list_display = ('species_name', 'species_first_name','category')
+    list_display = ('species_name', 'species_first_name', 'species_photo_img', 'category')
     change_list_template = 'admin/species/species/change_list.html'
     #: resource class
     resource_class = None

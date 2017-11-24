@@ -51,6 +51,15 @@ class Species(models.Model):
         
     getSpeciesDetailInfo = staticmethod(getSpeciesDetailInfo)
     
+    def species_photo_img(self):
+        if self.species_photo:
+            return u'<a href="{0}" target="_blank"><img src="{0}" width="100"/></a>'.format(self.species_photo.url)
+        else:
+            return '(Нет изображения)'
+        
+    species_photo_img.short_description = 'Картинка'
+    species_photo_img.allow_tags = True    
+    
     
 class Scpecies2Item(models.Model):
     species = ForeignKey('Species', on_delete=models.CASCADE)

@@ -85,7 +85,20 @@ class eBayItem(models.Model):
             WHERE si.species_id =%s; 
         """, params = [species_id])
         
+    def getUndefinedItems():
+        return eBayItem.objects.raw("""
+        SELECT ebay_item_id, ebay_item_title, ebay_item_url, ebay_item_postalcode, 
+               ebay_item_location, ebay_item_price, ebay_item_shipping_price, 
+               ebay_item_starttime, ebay_item_endtime, ebay_watch_count, country_id, 
+               ebay_category_id, listing_type_id, payment_method_id, ebay_gallery_icon, 
+               ebay_item_description
+          FROM ebay_parse_ebayitem ei
+          LEFT JOIN species_scpecies2item si ON ei.ebay_item_id = si.item_id
+          WHERE si.id IS NULL;
+        """)
+
     getItemsForSpecies = staticmethod(getItemsForSpecies)
+    getUndefinedItems = staticmethod(getUndefinedItems)
                 
 
 class eBayCategory(MPTTModel):

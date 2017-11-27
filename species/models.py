@@ -4,7 +4,6 @@ from django.db.models.fields import CharField
 from django.db import connection
 
 from django.db.models.fields.files import ImageField
-from requests import __title__
 
 # Create your models here.
 

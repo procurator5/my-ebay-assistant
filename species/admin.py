@@ -9,7 +9,6 @@ from ebay_parse.models import Setting, eBayItem, eBayCategory
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from googletrans import Translator
-from species.models import stopWords
 
 # Register your models here.
 class SpeciesAdmin(admin.ModelAdmin):
@@ -47,25 +46,34 @@ class SpeciesAdmin(admin.ModelAdmin):
     def import_action(self, request, *args, **kwargs):
         # custom view which should return an HttpResponse
         translator = Translator()
-        items = eBayItem.objects.all().values('ebay_item_title', 'ebay_item_id', 'ebay_category')
+        items = eBayItem.getUndefinedItems()
         for item in items:
-            try:
-                russian = translator.translate(item['ebay_item_title'], dest='ru', src='en')
-            except json.decoder.JSONDecodeError as e:
-                self.message_user(request, str(e), message=messages.ERROR)
-            russian = re.sub(r'[^a-zA-Z ]', '', str(russian))
-            russian = re.sub(r'^Translatedsrcen destru text', '', russian)
-            russian = re.sub(r'pronunciationNone$', '', russian)            
-            russian = re.sub(r'\s+', ' ', russian)
-            russian = re.sub('^\s', '', russian)
-            if russian != '':
-                if not Species.objects.filter(species_name = russian).exists():
-                    eCategory = eBayCategory.objects.get(ebay_category_id = item['ebay_category'])
-                    species = Species(species_name = russian, category = eCategory)
-                    species.save()
-                    eItem = eBayItem.objects.get(ebay_item_id = item['ebay_item_id'])
-                    relation = Scpecies2Item(species = species, item = eItem)
-                    relation.save()
+            species = Species.findSpeciesRelation(item)
+            if species == None:
+                try:
+                    russian = translator.translate(item.ebay_item_title, dest='ru', src='en')
+                except json.decoder.JSONDecodeError as e:
+                    self.message_user(request, str(e))
+                    break
+                russian = re.sub(r'[^a-zA-Z ]', '', str(russian))
+                russian = re.sub(r'^Translatedsrcen destru text', '', russian)
+                russian = re.sub(r'pronunciationNone$', '', russian)            
+                russian = re.sub(r'\s+', ' ', russian)
+                russian = re.sub('^\s', '', russian)
+                russian = russian.lower()
+                #delete stop words
+                for word in stopWords.objects.all():
+                    russian = re.sub(word.word.lower(), '', russian)
+                if russian != '':
+                    if not Species.objects.filter(species_name = russian).exists():
+                        species = Species(species_name = russian, category = item.ebay_category, species_photo = item.ebay_gallery_icon)
+                        print(russian)
+                        species.save()
+                        relation = Scpecies2Item(species = species, item = item)
+                        relation.save()
+            else:
+                relation = Scpecies2Item(species = species, item = item)
+                relation.save()
                     
 
         self.message_user(request, 'Loaded success...')  

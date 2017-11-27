@@ -4,6 +4,7 @@ from django.db.models.fields import CharField
 from django.db import connection
 
 from django.db.models.fields.files import ImageField
+from requests import __title__
 
 # Create your models here.
 
@@ -38,7 +39,7 @@ class Species(models.Model):
                 join species_scpecies2item si ON ss.id=si.species_id
                 join ebay_parse_ebayitem pe ON pe.ebay_item_id = si.item_id
                 join ebay_parse_ebayitemgallery ei USING(ebay_item_id)
-                where ss.id = 90
+                where ss.id = %s
                 limit 1;
 
             """, [self.id])
@@ -48,9 +49,7 @@ class Species(models.Model):
         if self.species_photo is None:
             self.species_photo = self.best_image()
         super(Species, self).save()
-        
-    getSpeciesDetailInfo = staticmethod(getSpeciesDetailInfo)
-    
+            
     def species_photo_img(self):
         if self.species_photo:
             return u'<a href="{0}" target="_blank"><img src="{0}" width="100"/></a>'.format(self.species_photo.url)
@@ -59,6 +58,45 @@ class Species(models.Model):
         
     species_photo_img.short_description = 'Картинка'
     species_photo_img.allow_tags = True    
+
+    def findSpeciesRelation(it):
+        species = Species.objects.exclude( species_first_name = '' ).distinct("species_first_name")
+        for item in species:
+            if item.species_first_name in it.ebay_item_title:
+                #Род нашли, ищем вид
+                sp2 = Species.objects.filter(species_first_name = item.species_first_name).exclude(species_last_name = '')
+                for it2 in sp2:
+                    if it2.species_last_name in it.ebay_item_title:
+                        #Нашли вид!
+                        return it2
+
+    
+    #удаляет дубликаты в списке видов
+    def deleteDublicates():
+        #Шаг1 поиск дубликатов (род/вид)
+        cursor = connection.cursor()
+        cursor.execute("""
+           WITH species AS(
+                SELECT species_first_name, species_last_name, count(*) AS count
+                  FROM species_species
+                  GROUP BY species_first_name, species_last_name
+            )
+            select * from species
+                WHERE count >1 ;
+            """)
+        #перебираем дублированные записи и чистим лишние
+        i = 0
+        for row in cursor.fetchall():
+            species = Species.objects.filter(species_first_name = row[0], species_last_name = row[1]).all()
+            for s in species[1:]:
+                Scpecies2Item.objects.filter(species = s).update(species= species[0])
+                s.delete()
+            i = i + 1 
+        return i
+    
+    getSpeciesDetailInfo = staticmethod(getSpeciesDetailInfo)
+    findSpeciesRelation = staticmethod(findSpeciesRelation)
+    deleteDublicates = staticmethod(deleteDublicates)
     
     
 class Scpecies2Item(models.Model):

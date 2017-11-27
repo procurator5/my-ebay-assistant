@@ -94,6 +94,7 @@ class eBayCategory(MPTTModel):
     ebay_category_name = models.CharField(max_length=256)
     parent = TreeForeignKey('self', null = True, blank = None, related_name = 'children' )
     ebay_category_enabled = models.BooleanField(default = False)
+    
     def space(self):
         return '--' * self.get_level() + '>'
 

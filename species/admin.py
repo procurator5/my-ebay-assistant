@@ -38,6 +38,9 @@ class SpeciesAdmin(admin.ModelAdmin):
             url(r'^import/$',
                 self.admin_site.admin_view(self.import_action),
                 name='%s_%s_import' % info),
+            url(r'^test/$',
+                self.admin_site.admin_view(self.test_action),
+                name='%s_%s_test' % info),
         ]
         return my_urls + urls
 
@@ -66,9 +69,22 @@ class SpeciesAdmin(admin.ModelAdmin):
                     
 
         self.message_user(request, 'Loaded success...')  
+        row_count = Species.deleteDublicates()
+
+        self.message_user(request, 'Delete %d dublicate rows' % row_count )  
+                
         url = reverse('admin:%s_%s_changelist' % self.get_model_info(),
                           current_app=self.admin_site.name)
-        return HttpResponseRedirect(url)    
+        return HttpResponseRedirect(url)
+    
+    def test_action(self, request, *args, **kwargs):
+        row_count = Species.deleteDublicates()
+
+        self.message_user(request, 'Delete %d dublicate rows' % row_count )  
+        
+        url = reverse('admin:%s_%s_changelist' % self.get_model_info(),
+                          current_app=self.admin_site.name)
+        return HttpResponseRedirect(url)       
 
 admin.site.register(Species, SpeciesAdmin)
 admin.site.register(stopWords,

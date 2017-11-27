@@ -110,6 +110,9 @@ class eBayCategory(MPTTModel):
     
     def space(self):
         return '--' * self.get_level() + '>'
+    
+    def __unicode__(self):
+        return self.ebay_category_name
 
 class eBayPaymentMethod(models.Model):
     payment_method_id = models.AutoField()

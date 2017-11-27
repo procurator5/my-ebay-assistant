@@ -77,11 +77,11 @@ def getOnePageFromCategory(category_id, pageNumber, cat):
     def createSpeciesRelation(it):
         species = Species.objects.filter(category = it.ebay_category).exclude( species_first_name = '' ).distinct("species_first_name")
         for item in species:
-            if item.species_first_name in it.ebay_item_title:
+            if item.species_first_name.lower() in it.ebay_item_title.lower():
                 #Род нашли, ищем вид
                 sp2 = Species.objects.filter(category = it.ebay_category, species_first_name = item.species_first_name).exclude(species_last_name = '')
                 for it2 in sp2:
-                    if it2.species_last_name in it.ebay_item_title:
+                    if it2.species_last_name.lower() in it.ebay_item_title.lower():
                         #Нашли вид!
                         relation = Scpecies2Item(species = it2, item = it)
                         relation.save()

@@ -12,7 +12,8 @@ from googletrans import Translator
 
 # Register your models here.
 class SpeciesAdmin(admin.ModelAdmin):
-    list_display = ('species_name', 'species_first_name', 'species_photo_img', 'category')
+    list_display = ('species_name', 'species_first_name', 'species_photo_img', 'show_category')
+    list_filter = [ 'category__ebay_category_name' ] 
     change_list_template = 'admin/species/species/change_list.html'
     #: resource class
     resource_class = None

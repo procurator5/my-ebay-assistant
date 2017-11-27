@@ -4,6 +4,6 @@
 
 {% block object-tools-items %}
   <li><a href='{% url opts|admin_urlname:"import" %}' class="import_link">{% trans "Import" %}</a></li>
-  <li><a href='{% url opts|admin_urlname:"test" %}' class="test_link">{% trans "Test" %}</a></li>
+  <li><a href='{% url opts|admin_urlname:"test" %}' class="test_link">{% trans "Delete doubles" %}</a></li>
   {{ block.super }}
 {% endblock %}

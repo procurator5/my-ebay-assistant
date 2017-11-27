@@ -55,6 +55,9 @@ class Species(models.Model):
         else:
             return '(Нет изображения)'
         
+    def show_category(self):
+        return self.category.ebay_category_name
+        
     species_photo_img.short_description = 'Картинка'
     species_photo_img.allow_tags = True    
 

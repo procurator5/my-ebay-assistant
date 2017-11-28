@@ -2,10 +2,16 @@
 
 ## Install
 
-This software is used python3. I also used framework Django and database PostreSQL.
+This software uses python3. I also use framework Django and database PostreSQL.
 You need install some packages:
+
 * python 3.5+
-* django 1.9
+* PostgreSQL 9.1+
+* django 1.11+
 * mttp
 * django-cron
 * django-admin-tools
+
+## Configure
+
+My-ebay-assistant uses eBay API. You must registered application on the ebay.com.

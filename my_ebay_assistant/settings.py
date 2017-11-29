@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
-from django.conf.global_settings import LOCALE_PATHS, MEDIA_ROOT, MEDIA_URL
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -53,6 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_cron',
+    'djorm_pgfulltext',    
     'mptt',
     'ebay_parse.apps.EbayParseConfig',
     'species.apps.SpeciesConfig',

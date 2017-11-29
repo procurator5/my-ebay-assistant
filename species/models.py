@@ -3,6 +3,10 @@ from django.db.models.fields.related import ForeignKey
 from django.db.models.fields import CharField
 from django.db import connection
 
+#full-text search 
+from djorm_pgfulltext.models import SearchManager
+from djorm_pgfulltext.fields import VectorField
+
 from django.db.models.fields.files import ImageField
 
 # Create your models here.
@@ -99,6 +103,16 @@ class Species(models.Model):
     getSpeciesDetailInfo = staticmethod(getSpeciesDetailInfo)
     findSpeciesRelation = staticmethod(findSpeciesRelation)
     deleteDublicates = staticmethod(deleteDublicates)
+    
+    #full text search
+    search_index = VectorField()
+    
+    objects = SearchManager(
+        fields=('species_name', 'species_first_name', 'species_last_name'),
+        config='pg_catalog.english',
+        search_field='search_index',
+        auto_update_search_field=True
+    )
     
     
 class Scpecies2Item(models.Model):

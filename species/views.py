@@ -23,6 +23,16 @@ def category(request, category_id):
                 }
     return HttpResponse(template.render(context, request))
 
+def search(request):
+    query = request.GET['q']
+    template = loader.get_template("species/category.html")
+
+    context = {
+                'species' : Species.objects.search(query),
+                'nodes': eBayCategory.objects.all(),
+                }
+    return HttpResponse(template.render(context, request))
+
 def species(request, species_id):
     template = loader.get_template("species/species.html")
 

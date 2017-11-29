@@ -8,10 +8,20 @@ You need install some packages:
 * python 3.5+
 * PostgreSQL 9.1+
 * django 1.11+
-* mttp
-* django-cron
-* django-admin-tools
+* mttp (Show ebay-categories as tree)
+* django-cron (autoload items from ebay)
+* django-admin-tools (extra-options for django-admin)
+* djorm-ext-pgfulltext (fulltex-search)
+
+### Database settings
+
+You must ensure you have installed the extension unaccent:
+
+```
+CREATE EXTENSION unaccent;
+ALTER FUNCTION unaccent(text) IMMUTABLE;
+```
 
 ## Configure
 
-My-ebay-assistant uses eBay API. You must registered application on the ebay.com.
+My-ebay-assistant uses eBay API. You must register application on the ebay.com as developer. You can do it here [a link](https://go.developer.ebay.com/) 

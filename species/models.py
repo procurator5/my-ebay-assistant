@@ -65,16 +65,28 @@ class Species(models.Model):
     species_photo_img.short_description = 'Картинка'
     species_photo_img.allow_tags = True    
 
+    def findGenusByDescription(desc):
+        cursor = connection.cursor()
+        cursor.execute("""
+            select DISTINCT lower(species_first_name) 
+                from species_species 
+                where to_tsvector(%s) @@ to_tsquery(species_first_name);
+        """, [desc])
+        return cursor.fetchall()
+
     def findSpeciesRelation(it):
-        species = Species.objects.exclude( species_first_name = '' ).distinct("species_first_name")
-        for item in species:
-            if item.species_first_name in it.ebay_item_title:
-                #Род нашли, ищем вид
-                sp2 = Species.objects.filter(species_first_name = item.species_first_name).exclude(species_last_name = '')
-                for it2 in sp2:
-                    if it2.species_last_name in it.ebay_item_title:
-                        #Нашли вид!
-                        return it2
+        genuses = Species.findGenusByDescription(it.ebay_item_title)
+        for genus in genuses:
+            cursor = connection.cursor()
+            cursor.execute("""
+                select DISTINCT lower(species_last_name) 
+                    from species_species 
+                    where lower(species_first_name) = %s AND
+                        to_tsvector(%s) @@ to_tsquery(species_last_name);
+            """, [genus[0].lower(), it.ebay_item_title])
+            rows = cursor.fetchall()
+            if len(rows) > 0:
+                return Species.objects.filter(species_first_name__iexact = genus[0], species_last_name__iexact = rows[0][0]).first()
 
     
     #удаляет дубликаты в списке видов
@@ -100,6 +112,7 @@ class Species(models.Model):
             i = i + 1 
         return i
     
+    findGenusByDescription = staticmethod(findGenusByDescription)
     getSpeciesDetailInfo = staticmethod(getSpeciesDetailInfo)
     findSpeciesRelation = staticmethod(findSpeciesRelation)
     deleteDublicates = staticmethod(deleteDublicates)
@@ -113,7 +126,7 @@ class Species(models.Model):
         search_field='search_index',
         auto_update_search_field=True
     )
-    
+        
     
 class Scpecies2Item(models.Model):
     species = ForeignKey('Species', on_delete=models.CASCADE)

@@ -19,6 +19,7 @@ from reportlab.platypus.para import PageNumberObject
 from django.contrib.admin.templatetags.admin_list import pagination
 from django_cron import CronJobBase
 from species.models import Species, Scpecies2Item
+from species.views import species
 
 
 
@@ -73,19 +74,6 @@ def index(request):
     return HttpResponse(template.render(context, request))
 
 def getOnePageFromCategory(category_id, pageNumber, cat):
-    
-    def createSpeciesRelation(it):
-        species = Species.objects.filter(category = it.ebay_category).exclude( species_first_name = '' ).distinct("species_first_name")
-        for item in species:
-            if item.species_first_name.lower() in it.ebay_item_title.lower():
-                #Род нашли, ищем вид
-                sp2 = Species.objects.filter(category = it.ebay_category, species_first_name = item.species_first_name).exclude(species_last_name = '')
-                for it2 in sp2:
-                    if it2.species_last_name.lower() in it.ebay_item_title.lower():
-                        #Нашли вид!
-                        relation = Scpecies2Item(species = it2, item = it)
-                        relation.save()
-                            
     response = findItemsByCategory(categoryId=str(category_id), paginationInput = {'entriesPerPage': "100",
                                                                                    'pageNumber': str(pageNumber)})
     api_resp = json.loads(response.decode('utf-8'))
@@ -158,8 +146,10 @@ def getOnePageFromCategory(category_id, pageNumber, cat):
         except KeyError:
             pass
         if not row.relationIsExists():
-            createSpeciesRelation(row)
-        
+            sp = Species.findSpeciesRelation(row)
+            if sp != None:
+                relation = Scpecies2Item(species = sp, item = row)
+                relation.save()        
     return (all_items, loaded_items) 
 
 

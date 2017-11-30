@@ -13,14 +13,9 @@ from .models import ListingType
 from .models import Setting
 from .models import eBayCategory, eBayItem, eBayPaymentMethod, eBayItemGallery
 from fileinput import filename
-from pip._vendor.distlib.util import proceed
-from pyasn1.compat.octets import null
-from reportlab.platypus.para import PageNumberObject
-from django.contrib.admin.templatetags.admin_list import pagination
-from django_cron import CronJobBase
 from species.models import Species, Scpecies2Item
-from species.views import species
 
+import logging
 
 
 def category(request, category_id):
@@ -289,6 +284,7 @@ class AutoLoadItems(CronJobBase):
     RUN_EVERY_MINS = Setting.getIntValue('RunEveryMinLoad')
     schedule = Schedule(run_every_mins=RUN_EVERY_MINS)
     code = 'ebay_parse.AutoLoadItems'
+    logger = logging.getLogger(__name__)
     
     def loadOnlyOneCategory(self, category_id):
         response = findItemsByCategory(categoryId=str(category_id))
@@ -312,13 +308,16 @@ class AutoLoadItems(CronJobBase):
             content = json.loads(response.decode('utf-8'))
             if item.ebay_item_description == None:
                 for img in content['Item']['PictureURL']:
-                    row = eBayItemGallery(ebay_item = item  )
-                    result = urllib.request.urlretrieve(str(img))       
-                    row.save()
-                    filename = os.path.basename(str(img))
-                    row.ebay_item_image.save(filename[:filename.find('?')],ImageFile(open(result[0], 'rb')))
-                    row.save()
-                    os.remove(result[0])
+                    try:
+                        row = eBayItemGallery(ebay_item = item  )
+                        result = urllib.request.urlretrieve(str(img))       
+                        row.save()
+                        filename = os.path.basename(str(img))
+                        row.ebay_item_image.save(filename[:filename.find('?')],ImageFile(open(result[0], 'rb')))
+                        row.save()
+                        os.remove(result[0])
+                    except urllib.error.URLError as e:
+                        self.logger.warning(str(e))
                     
                 item.ebay_item_description = content['Item']['Description']
                 item.save()

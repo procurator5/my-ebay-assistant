@@ -130,9 +130,9 @@ class Species(models.Model):
         cursor = connection.cursor()
         cursor.execute("""
            WITH species AS(
-                SELECT species_first_name, species_last_name, count(*) AS count
+                SELECT lower(species_first_name) species_first_name, lower(species_last_name) species_last_name, count(*) AS count
                   FROM species_species
-                  GROUP BY species_first_name, species_last_name
+                  GROUP BY lower(species_first_name), lower(species_last_name)
             )
             select * from species
                 WHERE count >1 ;

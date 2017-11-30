@@ -7,6 +7,10 @@ from django.db import connection
 from djorm_pgfulltext.models import SearchManager
 from djorm_pgfulltext.fields import VectorField
 
+import re
+import json
+from googletrans import Translator
+
 from django.db.models.fields.files import ImageField
 
 # Create your models here.
@@ -53,6 +57,37 @@ class Species(models.Model):
             self.species_photo = self.best_image()
         super(Species, self).save()
             
+    def saveUnknownSpecies(self, item):
+        self.species_name = item.ebay_item_title
+        self.category = item.ebay_category
+        self.species_photo = item.ebay_gallery_icon
+        
+        translator = Translator()
+        try:
+            russian = translator.translate(item.ebay_item_title, dest='ru', src='en')
+        except json.decoder.JSONDecodeError as e:
+            return
+        russian = re.sub(r'[^a-zA-Z ]', '', str(russian))
+        russian = re.sub(r'^Translatedsrcen destru text', '', russian)
+        russian = re.sub(r'pronunciationNone$', '', russian)            
+        russian = re.sub(r'\s+', ' ', russian)
+        russian = re.sub('^\s', '', russian)
+        russian = russian.lower()
+        #delete stop words
+        for word in stopWords.objects.all():
+            russian = re.sub(word.word.lower(), '', russian)
+            if russian != '':
+                if not Species.objects.filter(species_name = russian).exists():
+                    self.species_name = russian
+
+        print("2> "+self.species_name)                    
+        if Species.objects.filter(species_name = self.species_name).exists():
+            self.id = Species.objects.filter(species_name = self.species_name).first().id           
+            print("2> dublicate " + self.species_name)  
+        
+        super(Species, self).save()
+
+    
     def species_photo_img(self):
         if self.species_photo:
             return u'<a href="{0}" target="_blank"><img src="{0}" width="100"/></a>'.format(self.species_photo.url)

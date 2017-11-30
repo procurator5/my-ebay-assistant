@@ -1,18 +1,17 @@
 from django.contrib import admin
 from .models import Species, Scpecies2Item, stopWords
 from django.conf.urls import url
-import re
-import json
 
-from ebay_parse.models import Setting, eBayItem, eBayCategory
+from ebay_parse.models import eBayItem
 
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from googletrans import Translator
+
+import re
 
 # Register your models here.
 class SpeciesAdmin(admin.ModelAdmin):
-    list_display = ('species_name', 'species_first_name', 'species_photo_img', 'show_category')
+    list_display = ('species_name', 'species_first_name', 'species_last_name', 'species_photo_img', 'show_category')
     list_filter = [ 'category__ebay_category_name' ] 
     change_list_template = 'admin/species/species/change_list.html'
     #: resource class
@@ -46,32 +45,42 @@ class SpeciesAdmin(admin.ModelAdmin):
 
     def import_action(self, request, *args, **kwargs):
         # custom view which should return an HttpResponse
-        translator = Translator()
         items = eBayItem.getUndefinedItems()
         for item in items:
             species = Species.findSpeciesRelation(item)
             if species == None:
-                try:
-                    russian = translator.translate(item.ebay_item_title, dest='ru', src='en')
-                except json.decoder.JSONDecodeError as e:
-                    self.message_user(request, str(e))
-                    break
-                russian = re.sub(r'[^a-zA-Z ]', '', str(russian))
-                russian = re.sub(r'^Translatedsrcen destru text', '', russian)
-                russian = re.sub(r'pronunciationNone$', '', russian)            
-                russian = re.sub(r'\s+', ' ', russian)
-                russian = re.sub('^\s', '', russian)
-                russian = russian.lower()
-                #delete stop words
-                for word in stopWords.objects.all():
-                    russian = re.sub(word.word.lower(), '', russian)
-                if russian != '':
-                    if not Species.objects.filter(species_name = russian).exists():
-                        species = Species(species_name = russian, category = item.ebay_category, species_photo = item.ebay_gallery_icon)
-                        print(russian)
+                genuses = Species.findGenusByDescription(item.ebay_item_title)
+                # We have 2 options:
+                # 1. We know genus of the item
+                if genuses:
+                    rFilter = re.compile(u"""[\'\.\-\,\!\"\№\;\%\:\?\@\$\^\*\&\(\)\_\+]""")
+                    ebay_item_title = rFilter.sub(' ', item.ebay_item_title.lower() )
+                    rFilterSpace = re.compile(u"""[\ ]{1,}""")
+                    ebay_item_title = rFilterSpace.sub(' ', ebay_item_title )                    
+                    words = ebay_item_title.split()
+                    genus = genuses[0][0]
+                    print("1> " +genus)
+                    print(words)
+                    try:
+                        sp = words[words.index(genus)+1]
+                    except IndexError:
+                        sp='sp'
+                        
+                    print("1> " +genus + " "+ sp)
+                    if not Species.objects.filter(species_name = genus + " "+ sp).exists():
+                        species = Species(species_name = genus + " "+ sp, category = item.ebay_category, species_photo = item.ebay_gallery_icon, species_first_name = genus)
                         species.save()
-                        relation = Scpecies2Item(species = species, item = item)
-                        relation.save()
+                    else:
+                        species = Species.objects.filter(species_name = genus + " "+ sp).first()
+                    relation = Scpecies2Item(species = species, item = item)
+                    relation.save()
+                # 2. We know nothing
+                else:
+                    species =Species()
+                    species.saveUnknownSpecies(item)
+                    relation = Scpecies2Item(species = species, item = item)
+                    relation.save()                
+
             else:
                 relation = Scpecies2Item(species = species, item = item)
                 relation.save()

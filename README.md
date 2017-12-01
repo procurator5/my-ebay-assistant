@@ -24,4 +24,12 @@ ALTER FUNCTION unaccent(text) IMMUTABLE;
 
 ## Configure
 
-My-ebay-assistant uses eBay API. You must register application on the ebay.com as developer. You can do it here [a link](https://go.developer.ebay.com/) 
+My-ebay-assistant uses eBay API. You must register application on the ebay.com as developer. You can do it here [a link](https://go.developer.ebay.com/).
+Configure project after registration from admin dashboard. 
+
+![confugure image](https://github.com/procurator5/my-ebay-assistant/raw/master/docs/settings.png)
+
+You must edit filelds:
+* DevID
+* AppID
+* CertID 

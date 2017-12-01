@@ -1,4 +1,22 @@
 {% extends "admin_tools/dashboard/module.html" %}
 {% block module_content %}
-    <h4>{{ module.message  }}</h4>
+<h3>Common options</h3>
+<ul>
+  {% for item in module.settings %}
+  <li>
+  	<span class="float-right"><a href="/admin/ebay_parse/setting/{{item.id}}/change/">{{item.setting_value}}</a></span>
+  	{{item.setting_name}}:
+  </li>
+  {% endfor %}
+</ul>
+<h3>Active eBay Categories</h3>
+<ul>
+  <li>
+  {% for item in module.categories %}
+  	{{item.ebay_category_name}}, 
+  {% endfor %}
+  <ul>
+  	<li><a class="changelink" href="/admin/ebay_parse/ebaycategory/"><span class="icon">Edit</span></a></li></ul>
+  </li>
+</ul>
 {% endblock %}

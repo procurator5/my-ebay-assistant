@@ -18,6 +18,7 @@ except ImportError:
 
 from admin_tools.dashboard import modules, Dashboard, AppIndexDashboard
 from admin_tools.utils import get_admin_site_name
+from ebay_parse.models import eBayCategory, Setting
 
 
 class CustomIndexDashboard(Dashboard):
@@ -57,13 +58,6 @@ class CustomIndexDashboard(Dashboard):
 
         # append a recent actions module
         self.children.append(modules.RecentActions(_('Recent Actions'), 5))
-        
-        # append a feed module
-        self.children.append(modules.Feed(
-            _('Latest Django News'),
-            feed_url='http://www.djangoproject.com/rss/weblog/',
-            limit=5
-        ))
 
         # append another link list module for "support".
         self.children.append(modules.LinkList(
@@ -124,4 +118,6 @@ class EbayParseModule(modules.DashboardModule):
     def __init__(self, **kwargs):
         super(EbayParseModule, self).__init__(**kwargs)
         self.template = 'admin/module.html'
-        self.message = 'message'
+        self.message = "message"
+        self.settings = Setting.objects.all()
+        self.categories = eBayCategory.objects.filter(ebay_category_enabled = True).all()

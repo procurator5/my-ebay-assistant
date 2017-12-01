@@ -35,7 +35,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
+ADMIN_TOOLS_INDEX_DASHBOARD = 'dashboard.CustomIndexDashboard'
+ADMIN_TOOLS_APP_INDEX_DASHBOARD = 'dashboard.CustomAppIndexDashboard'
 
 
 # Application definition

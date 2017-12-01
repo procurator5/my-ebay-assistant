@@ -323,8 +323,8 @@ class AutoLoadItems(CronJobBase):
                 item.save()
 
     def do(self):
-        category_id = 165707
-        self.loadOnlyOneCategory(category_id)            
+        for category in eBayCategory.objects.filter(ebay_category_enabled = True).all():
+            self.loadOnlyOneCategory(category.category_id)            
 
 
 

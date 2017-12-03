@@ -281,7 +281,9 @@ def findItemsByCategory(
     return get_response(findItemsByCategory.__name__, request, encoding)
 
 class AutoLoadItems(CronJobBase):
-    RUN_EVERY_MINS = Setting.getIntValue('RunEveryMinLoad')
+
+#    RUN_EVERY_MINS = Setting.getIntValue('RunEveryMinLoad')
+    RUN_EVERY_MINS = 120
     schedule = Schedule(run_every_mins=RUN_EVERY_MINS)
     code = 'ebay_parse.AutoLoadItems'
     logger = logging.getLogger(__name__)

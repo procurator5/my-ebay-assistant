@@ -32,11 +32,11 @@ class Species(models.Model):
             join ebay_parse_ebayitem pe ON pe.ebay_item_id = si.item_id
             group by ss.id)
             select * from species_species ss 
-            JOIN info USING(id)
+            LEFT JOIN info USING(id)
             JOIN ebay_parse_ebaycategory ec ON ec.ebay_category_id = ss.category_id
             WHERE id = %s
             """, [species_id])
-        return dictfetchall(cursor)
+        return dictfetchall(cursor)[0]
     
     def best_image(self):
         cursor = connection.cursor()

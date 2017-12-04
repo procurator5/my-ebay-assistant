@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import loader
 
@@ -17,9 +16,20 @@ def category(request, category_id):
     template = loader.get_template("species/category.html")
     eCategory = eBayCategory.objects.get(ebay_category_id = category_id)
     context = {
-                'species' : Species.objects.filter(category=eCategory).order_by('species_name'),
+                'species' : Species.objects.filter(category=eCategory).order_by('species_first_name').values('species_first_name').distinct(),
                 'nodes': eBayCategory.objects.all(),
                 'category': eCategory,
+                }
+    return HttpResponse(template.render(context, request))
+
+def genus(request, genus_id):
+    template = loader.get_template("species/genus.html")
+    eCategory = Species.objects.filter(species_first_name = genus_id).first().category
+    context = {
+                'species' : Species.objects.filter(category=eCategory, species_first_name = genus_id).order_by('species_name').all(),
+                'nodes': eBayCategory.objects.all(),
+                'category': eCategory,
+                'genus': genus_id,
                 }
     return HttpResponse(template.render(context, request))
 
@@ -35,10 +45,12 @@ def search(request):
 
 def species(request, species_id):
     template = loader.get_template("species/species.html")
+    eCategory = Species.objects.get(id = species_id).category
 
     context = {
-                'info' : Species.getSpeciesDetailInfo(species_id)[0],
+                'info' : Species.getSpeciesDetailInfo(species_id),
                 'nodes': eBayCategory.objects.all(),
+                'category': eCategory,
                 'items': eBayItem.getItemsForSpecies(species_id)
                 }
     return HttpResponse(template.render(context, request))

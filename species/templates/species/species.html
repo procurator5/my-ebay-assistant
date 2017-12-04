@@ -5,6 +5,10 @@
 {% block title %} Species {% endblock %}
 
 {% block content %}
+<a href="/species/">root </a> &raquo; 
+<a href="/species/category/{{category.ebay_category_id}}">{{category.ebay_category_name}}</a>&raquo;
+<a href="/species/genus/{{info.species_first_name}}">{{info.species_first_name}}</a> &raquo; 
+<a href="/species/{{info.id}}">{{info.species_name}}</a>
 
 <h1>{{info.species_name}}</h1>
 <table>

@@ -33,7 +33,9 @@ SECRET_KEY = 'e*ol*18z#%z14-5f)s=&@wmiwj!kjrep$^h+$*cptnf2$vuxme'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+        '*',
+    ]
 
 ADMIN_TOOLS_INDEX_DASHBOARD = 'dashboard.CustomIndexDashboard'
 ADMIN_TOOLS_APP_INDEX_DASHBOARD = 'dashboard.CustomAppIndexDashboard'

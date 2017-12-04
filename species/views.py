@@ -37,7 +37,7 @@ def species(request, species_id):
     template = loader.get_template("species/species.html")
 
     context = {
-                'info' : Species.getSpeciesDetailInfo(species_id)[0],
+                'info' : Species.getSpeciesDetailInfo(species_id),
                 'nodes': eBayCategory.objects.all(),
                 'items': eBayItem.getItemsForSpecies(species_id)
                 }

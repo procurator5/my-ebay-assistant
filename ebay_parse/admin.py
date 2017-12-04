@@ -2,7 +2,6 @@ from django.contrib import admin
 
 from .models import Setting
 from .models import eBayCategory
-#from Onboard.KeyCommon import actions
 from mptt.admin import MPTTModelAdmin
 from mptt.admin import DraggableMPTTAdmin
 from django.conf.urls import url

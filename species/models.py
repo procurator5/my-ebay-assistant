@@ -36,7 +36,21 @@ class Species(models.Model):
             JOIN ebay_parse_ebaycategory ec ON ec.ebay_category_id = ss.category_id
             WHERE id = %s
             """, [species_id])
-        return cursor.fetchone()
+        return dictfetchall(cursor)[0]
+    
+    def getGenusStatistics(genus):
+        cursor = connection.cursor()
+        cursor.execute("""
+        select species_first_name, species_last_name, avg(ebay_item_price), count(*) image_count
+                from species_species ss
+                join species_scpecies2item si ON ss.id=si.species_id
+                join ebay_parse_ebayitem pe ON pe.ebay_item_id = si.item_id
+                join ebay_parse_ebayitemgallery ei USING(ebay_item_id)
+                WHERE species_first_name = %s
+                GROUP BY species_first_name, species_last_name
+                order by image_count desc
+            """, [genus])
+        return dictfetchall(cursor)
     
     def best_image(self):
         cursor = connection.cursor()
@@ -149,6 +163,7 @@ class Species(models.Model):
     findGenusByDescription = staticmethod(findGenusByDescription)
     getSpeciesDetailInfo = staticmethod(getSpeciesDetailInfo)
     findSpeciesRelation = staticmethod(findSpeciesRelation)
+    getGenusStatistics = staticmethod(getGenusStatistics)
     deleteDublicates = staticmethod(deleteDublicates)
     
     #full text search

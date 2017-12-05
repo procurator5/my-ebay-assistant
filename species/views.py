@@ -48,7 +48,6 @@ def search(request):
 def species(request, species_id):
     template = loader.get_template("species/species.html")
     eCategory = Species.objects.get(id = species_id).category
-    print(Species.getSpeciesDetailInfo(species_id))
     context = {
                 'info' : Species.getSpeciesDetailInfo(species_id),
                 'nodes': eBayCategory.objects.all(),

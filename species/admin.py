@@ -13,6 +13,8 @@ import re
 class SpeciesAdmin(admin.ModelAdmin):
     list_display = ('species_name', 'species_first_name', 'species_last_name', 'species_photo_img', 'show_category')
     list_filter = [ 'category__ebay_category_name' ] 
+    actions = [ 'reload_image' ]
+    
     change_list_template = 'admin/species/species/change_list.html'
     #: resource class
     resource_class = None
@@ -102,7 +104,15 @@ class SpeciesAdmin(admin.ModelAdmin):
         
         url = reverse('admin:%s_%s_changelist' % self.get_model_info(),
                           current_app=self.admin_site.name)
-        return HttpResponseRedirect(url)       
+        return HttpResponseRedirect(url)   
+    
+    def reload_image(self, request, queryset): 
+        for sp in queryset:
+            sp.species_photo = sp.best_image()
+            print(sp.species_photo)
+            sp.save()
+
+    reload_image.short_description = "Reload Image"
 
 admin.site.register(Species, SpeciesAdmin)
 admin.site.register(stopWords,

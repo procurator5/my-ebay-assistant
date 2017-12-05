@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.template import loader
+from django.db.models import Count
 
 from ebay_parse.models import eBayCategory, eBayItem
 from .models import Species
@@ -16,7 +17,7 @@ def category(request, category_id):
     template = loader.get_template("species/category.html")
     eCategory = eBayCategory.objects.get(ebay_category_id = category_id)
     context = {
-                'species' : Species.objects.filter(category=eCategory).order_by('species_first_name').values('species_first_name').distinct(),
+                'species' : Species.objects.filter(category=eCategory).order_by('species_first_name').values('species_first_name').annotate(dcount=Count('species_first_name')),
                 'nodes': eBayCategory.objects.all(),
                 'category': eCategory,
                 }

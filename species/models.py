@@ -36,21 +36,20 @@ class Species(models.Model):
             JOIN ebay_parse_ebaycategory ec ON ec.ebay_category_id = ss.category_id
             WHERE id = %s
             """, [species_id])
-        return dictfetchall(cursor)[0]
+        return cursor.fetchone()
     
     def best_image(self):
         cursor = connection.cursor()
         cursor.execute("""
-           select ebay_item_image
+           select ebay_gallery_icon
                 from species_species ss
                 join species_scpecies2item si ON ss.id=si.species_id
                 join ebay_parse_ebayitem pe ON pe.ebay_item_id = si.item_id
-                join ebay_parse_ebayitemgallery ei USING(ebay_item_id)
                 where ss.id = %s
                 limit 1;
 
             """, [self.id])
-        return cursor.fetch()[0]
+        return cursor.fetchone()[0]
     
     def save(self):
         if self.species_photo is None:

@@ -19,7 +19,7 @@ class SettingAdmin(admin.ModelAdmin):
     
 class eBayCategoryAdmin(DraggableMPTTAdmin):
     list_editable = ['ebay_category_enabled']
-    actions = [ 'enableCategoyWithParents' ]
+    actions = [ 'enableCategoryWithParents' ]
     search_fields = [ 'ebay_category_name' ]
 
     change_list_template = 'admin/ebay_parse/ebaycategory/change_list.html'
@@ -77,7 +77,7 @@ class eBayCategoryAdmin(DraggableMPTTAdmin):
             if int(category['CategoryID']) != category_id: 
                 self.stepLoadCategory(int(category['CategoryID']))
                 
-    def enableCategoyWithParents(self, request, queryset):
+    def enableCategoryWithParents(self, request, queryset):
         for category in queryset:
             self.enableCategoryrecursive(category)
             

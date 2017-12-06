@@ -288,7 +288,7 @@ class AutoLoadItems(CronJobBase):
         except  Exception:
             RUN_EVERY_MINS = 120
             
-            self.schedule = Schedule(run_every_mins=RUN_EVERY_MINS)
+        self.schedule = Schedule(run_every_mins=RUN_EVERY_MINS)
             
     code = 'ebay_parse.AutoLoadItems'
     logger = logging.getLogger(__name__)
@@ -331,7 +331,7 @@ class AutoLoadItems(CronJobBase):
 
     def do(self):
         for category in eBayCategory.objects.filter(ebay_category_enabled = True).all():
-            self.loadOnlyOneCategory(category.category_id)            
+            self.loadOnlyOneCategory(category.ebay_category_id)            
 
 
 

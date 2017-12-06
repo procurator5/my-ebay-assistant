@@ -41,14 +41,13 @@ class Species(models.Model):
     def getGenusStatistics(genus):
         cursor = connection.cursor()
         cursor.execute("""
-        select species_first_name, species_last_name, round(avg(ebay_item_price),2) as avg, count(*) image_count
+        select species_first_name, species_last_name, round(avg(ebay_item_price),2) as avg, count(*) lots_count
                 from species_species ss
                 join species_scpecies2item si ON ss.id=si.species_id
                 join ebay_parse_ebayitem pe ON pe.ebay_item_id = si.item_id
-                join ebay_parse_ebayitemgallery ei USING(ebay_item_id)
                 WHERE species_first_name = %s
                 GROUP BY species_first_name, species_last_name
-                order by image_count desc
+                order by lots_count desc
             """, [genus])
         return dictfetchall(cursor)
     

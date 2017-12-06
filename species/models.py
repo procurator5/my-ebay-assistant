@@ -41,7 +41,7 @@ class Species(models.Model):
     def getGenusStatistics(genus):
         cursor = connection.cursor()
         cursor.execute("""
-        select species_first_name, species_last_name, avg(ebay_item_price), count(*) image_count
+        select species_first_name, species_last_name, round(avg(ebay_item_price),2) as avg, count(*) image_count
                 from species_species ss
                 join species_scpecies2item si ON ss.id=si.species_id
                 join ebay_parse_ebayitem pe ON pe.ebay_item_id = si.item_id

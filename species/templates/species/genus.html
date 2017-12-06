@@ -3,19 +3,53 @@
 
 {% block title %} {% trans "Species for category" %}{{category.category_name}}{% endblock %}
 
+{% block head %}
+<style type="text/css">
+.table_dark {
+  font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+  font-size: 10px;
+  width: 100%;
+  text-align: left;
+  border-collapse: collapse;
+  background: #F7F7F2;
+  margin: 10px;
+}
+.table_dark th {
+  color: black;
+  border-bottom: 1px solid #37B5A5;
+  padding: 12px 17px;
+}
+.table_dark td {
+  color: black;
+  border-bottom: 1px solid #37B5A5;
+  border-right:1px solid #37B5A5;
+  padding: 7px 17px;
+}
+.table_dark tr:last-child td {
+  border-bottom: none;
+}
+.table_dark td:last-child {
+  border-right: none;
+}
+.table_dark tr:hover td {
+  text-decoration: underline;
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <a href="/species/">root </a> &raquo; 
 <a href="/species/category/{{category.ebay_category_id}}">{{category.ebay_category_name}}</a>&raquo;
 <a href="/species/genus/{{genus}}">{{genus}}</a> 
 <h1>{% blocktrans %} Species for genus {{genus}}{% endblocktrans %}</h1>
   <h2>Common statistic:</h2>
-  <table border = 1>
+  <table class='table_dark'>
   	<tr>
   		<th>Species</th><th>Avg priсe</th><th>Image count</th>
   	</tr>
 	  {% for s in stat %}
   	<tr>
-  		<td>{{s.species_first_name}} {{s.species_last_name}}</td><th>{{s.avg}}</td><td>{{s.image_count}}</td>
+  		<td>{{s.species_first_name}} {{s.species_last_name}}</td><td>{{s.avg}}</td><td>{{s.image_count}}</td>
   	</tr>
       {% endfor %}  
   </table>

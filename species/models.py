@@ -174,6 +174,11 @@ class Species(models.Model):
         search_field='search_index',
         auto_update_search_field=True
     )
+    
+    def getPriceStatistic(self):
+        c = connection.cursor()
+        c.callproc("get_price_distribution", [self.id])
+        return dictfetchall(c)        
         
     
 class Scpecies2Item(models.Model):

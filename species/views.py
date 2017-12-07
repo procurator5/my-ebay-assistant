@@ -47,11 +47,14 @@ def search(request):
 
 def species(request, species_id):
     template = loader.get_template("species/species.html")
-    eCategory = Species.objects.get(id = species_id).category
+    sp = Species.objects.get(id = species_id)
+    eCategory = sp.category
     context = {
                 'info' : Species.getSpeciesDetailInfo(species_id),
                 'nodes': eBayCategory.objects.all(),
                 'category': eCategory,
-                'items': eBayItem.getItemsForSpecies(species_id)
+                'items': eBayItem.getItemsForSpecies(species_id),
+                'stats': sp.getPriceStatistic(),
                 }
+    
     return HttpResponse(template.render(context, request))

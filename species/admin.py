@@ -109,7 +109,6 @@ class SpeciesAdmin(admin.ModelAdmin):
     def reload_image(self, request, queryset): 
         for sp in queryset:
             sp.species_photo = sp.best_image()
-            print(sp.species_photo)
             sp.save()
 
     reload_image.short_description = "Reload Image"

@@ -62,7 +62,10 @@ class Species(models.Model):
                 limit 1;
 
             """, [self.id])
-        return cursor.fetchone()[0]
+        try:
+            return cursor.fetchone()[0]
+        except TypeError:
+            return ''
     
     def save(self):
         if self.species_photo is None:

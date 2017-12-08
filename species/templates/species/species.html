@@ -136,6 +136,7 @@
    google.load("visualization", "1", {packages:["corechart"]});
    google.setOnLoadCallback(drawChart);
    function drawChart() {
+   //load price distortion statistic
     var data = google.visualization.arrayToDataTable([
      ['price', 'count'],
  	{% for stat in stats %}    
@@ -149,7 +150,42 @@
      hAxis: {title: 'Price'},
      vAxis: {title: 'Counts'}
     };
+    
     var chart = new google.visualization.ColumnChart(document.getElementById('statistic'));
+    chart.draw(data, options);
+   
+    //load chronology
+    var data = google.visualization.arrayToDataTable([
+     ['Month', 'Avg'],
+ 	{% for chron in chronos %}    
+     [
+     '{{chron.b}}', {{chron.avg}}
+     ],
+	{%  endfor %}
+    ]);
+    var options = {
+     title: 'Chronology avg price statistic for year',
+     hAxis: {title: 'Month'},
+     vAxis: {title: 'Avg Price'}
+    };
+    var chart = new google.visualization.ColumnChart(document.getElementById('chronology_price'));
+    chart.draw(data, options);
+
+    //load chronology count
+    var data = google.visualization.arrayToDataTable([
+     ['Month', 'Count'],
+ 	{% for chron in chronos %}    
+     [
+     '{{chron.b}}', {{chron.count}}
+     ],
+	{%  endfor %}
+    ]);
+    var options = {
+     title: 'Chronology lots counts statistic for year',
+     hAxis: {title: 'Month'},
+     vAxis: {title: 'Lots Count'}
+    };
+    var chart = new google.visualization.ColumnChart(document.getElementById('chronology_count'));
     chart.draw(data, options);
    }
 {% endblock script %}
@@ -210,6 +246,8 @@
   <section id="content-tab2">
         <p>
   			<div id="statistic"></div>
+  			<div id="chronology_price"></div>
+  			<div id="chronology_count"></div>
 		</p>
   </section>
 </div>

@@ -7,7 +7,7 @@
 <a href="/species/">root </a> &raquo; <a href="/species/category/{{category.ebay_category_id}}">{{category.ebay_category_name}}</a>
 
 <h1>{% blocktrans %} Species for category {{category.ebay_category_name}}{% endblocktrans %}</h1>
-  <h2>Detailed information for item</h2>
+  <h2>Detailed genus information </h2>
   <ul>
 	  {% for item in species %}
 	  	<li><a href="/species/genus/{{item.species_first_name}}"> {{item.species_first_name}}  ( {{item.dcount}} )  &raquo; </a></li>

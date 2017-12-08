@@ -55,6 +55,7 @@ def species(request, species_id):
                 'category': eCategory,
                 'items': eBayItem.getItemsForSpecies(species_id),
                 'stats': sp.getPriceStatistic(),
+                'chronos': sp.getChronologyStatistic()
                 }
     
     return HttpResponse(template.render(context, request))

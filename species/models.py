@@ -182,6 +182,26 @@ class Species(models.Model):
         c = connection.cursor()
         c.callproc("get_price_distribution", [self.id])
         return dictfetchall(c)        
+
+    def getChronologyStatistic(self):
+        cursor = connection.cursor()
+        cursor.execute("""
+            SELECT to_char(date_trunc('mon' ,current_date) - s.a * interval '1 mon', 'Month YYYY')  b, 
+        (select to_char(coalesce(avg(ebay_item_price), 0), '9999999.99') avg
+                from species_species ss
+                join species_scpecies2item si ON ss.id=si.species_id
+                join ebay_parse_ebayitem pe ON pe.ebay_item_id = si.item_id
+                WHERE ss.id = %s AND ebay_item_endtime BETWEEN date_trunc('mon' ,current_date) - s.a * interval '1 mon' AND 
+                date_trunc('mon' ,current_date) - (s.a -1 ) * interval '1 mon'),
+        (select count(*)
+                from species_species ss
+                join species_scpecies2item si ON ss.id=si.species_id
+                join ebay_parse_ebayitem pe ON pe.ebay_item_id = si.item_id
+                WHERE ss.id = %s AND ebay_item_endtime BETWEEN date_trunc('mon' ,current_date) - s.a * interval '1 mon' AND 
+                date_trunc('mon' ,current_date) - (s.a -1 ) * interval '1 mon')
+  FROM generate_series(0,12) as s(a) order by a desc;
+        """, [self.id, self.id])
+        return dictfetchall(cursor)
         
     
 class Scpecies2Item(models.Model):

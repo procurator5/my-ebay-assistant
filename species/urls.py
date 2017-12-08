@@ -8,4 +8,5 @@ urlpatterns = [
     url(r'^(?P<species_id>[0-9]+)/$', views.species, name = 'species'),
     url(r'^genus/(?P<genus_id>[\w+]+)/$', views.genus, name = 'genus'),
     url(r'^search/$', views.search, name = 'search'),
+    url(r'^best/$', views.best, name = 'best'),
 ]

@@ -1,12 +1,42 @@
 {% extends "__index.html" %}
-{% load mptt_tags %}
 {% load i18n %}
 
-{% block title %} {{info.species_name}} {% endblock %}
+{% block title %} {% trans "Species for category" %}{{category.category_name}}{% endblock %}
+
 {% block head %}
-  <script src="https://www.google.com/jsapi"></script>
-<style>
-<!--
+
+<style type="text/css">
+@import url("http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css");
+.table_dark {
+  font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+  font-size: 10px;
+  width: 100%;
+  text-align: left;
+  border-collapse: collapse;
+  background: #F7F7F2;
+  margin: 10px;
+}
+.table_dark th {
+  color: black;
+  border-bottom: 1px solid #37B5A5;
+  padding: 12px 17px;
+}
+.table_dark td {
+  color: black;
+  border-bottom: 1px solid #37B5A5;
+  border-right:1px solid #37B5A5;
+  padding: 7px 17px;
+}
+.table_dark tr:last-child td {
+  border-bottom: none;
+}
+.table_dark td:last-child {
+  border-right: none;
+}
+.table_dark tr:hover td {
+  text-decoration: underline;
+}
+
 /* Базовый контейнер табов */
 .tabs {
 	min-width: 320px;
@@ -127,135 +157,55 @@
 	}
 }
 
--->
 </style>
-
 {% endblock %}
-
-{% block script %}
-   google.load("visualization", "1", {packages:["corechart"]});
-   google.setOnLoadCallback(drawChart);
-   function drawChart() {
-   //load price distortion statistic
-    var data = google.visualization.arrayToDataTable([
-     ['price', 'count'],
- 	{% for stat in stats %}    
-     [
-     '{{stat.line_end}}', {{stat.count}}
-     ],
-	{%  endfor %}
-    ]);
-    var options = {
-     title: 'Price statistic',
-     hAxis: {title: 'Price'},
-     vAxis: {title: 'Counts'}
-    };
-    
-    var chart = new google.visualization.ColumnChart(document.getElementById('statistic'));
-    chart.draw(data, options);
-   
-    //load chronology
-    var data = google.visualization.arrayToDataTable([
-     ['Month', 'Avg'],
- 	{% for chron in chronos %}    
-     [
-     '{{chron.b}}', {{chron.avg}}
-     ],
-	{%  endfor %}
-    ]);
-    var options = {
-     title: 'Chronology avg price statistic for last year',
-     hAxis: {title: 'Month'},
-     vAxis: {title: 'Avg Price'}
-    };
-    var chart = new google.visualization.ColumnChart(document.getElementById('chronology_price'));
-    chart.draw(data, options);
-
-    //load chronology count
-    var data = google.visualization.arrayToDataTable([
-     ['Month', 'Count'],
- 	{% for chron in chronos %}    
-     [
-     '{{chron.b}}', {{chron.count}}
-     ],
-	{%  endfor %}
-    ]);
-    var options = {
-     title: 'Chronology lots counts statistic for last year',
-     hAxis: {title: 'Month'},
-     vAxis: {title: 'Lots Count'}
-    };
-    var chart = new google.visualization.ColumnChart(document.getElementById('chronology_count'));
-    chart.draw(data, options);
-   }
-{% endblock script %}
-
 
 {% block content %}
 <a href="/species/">root </a> &raquo; 
 <a href="/species/category/{{category.ebay_category_id}}">{{category.ebay_category_name}}</a>&raquo;
-<a href="/species/genus/{{info.species_first_name}}">{{info.species_first_name}}</a> &raquo; 
-<a href="/species/{{info.id}}">{{info.species_name}}</a>
-
-<h1>{{info.species_name}}</h1>
-<table>
-  <tr>
-    <td><img src="/media/{{info.species_photo}}" width='300'/></td>
-    <td>
-    	<h2>{% trans "Common properties" %}</h2>
-    	{{info.species_first_name}}<br>
-		{{info.species_last_name}}<br>  
-		Category: {{info.ebay_category_name}} 
-		<h2> {% trans "Price" %} </h2>
-		
-		<ul>
-			<li>Avg price: {{info.avg}}</li>
-			<li>Min price: {{info.min}}</li>
-			<li>Max price: {{info.max}}</li>
-			<li>Avg views: {{info.ebay_watch_count}}</li>
-		</ul> 
-		<h2>Count of items</h2>
-		Count: {{info.count}}
-    </td>
-  </tr>
-</table>
+<a href="/species/genus/{{genus}}">{{genus}}</a> 
+<h1>{% blocktrans %} Species for genus {{genus}}{% endblocktrans %}</h1>
 
 <div class="tabs">
     <input id="tab1" type="radio" name="tabs" checked>
-    <label for="tab1" title="Species">eBay Lots</label>
- 
-    <input id="tab2" type="radio" name="tabs">
-    <label for="tab2" title="Species">Lots Statistics</label>
+    <label for="tab1" title="Species">MostViewed</label>
+
 
   <section id="content-tab1">
         <p>
-			<table>
-				{% for item in items %}
-				<tr>
-					<td><img alt="{{item.ebay_item_title}}" src="/media/{{item.ebay_gallery_icon}}" width="{{item.ebay_gallery_icon.width}}" height="{{item.ebay_gallery_icon.height}}"></td>
-			    	<td>
-			    		<a href="{{item.ebay_item_url}}" target="_blank">{{item.ebay_item_title}}</a><br>
-			    		{{item.ebay_item_price}} $
-			    	
-			    	</td>
-			    </tr>
-				{%  endfor %}
-			</table>
-		</p>
-</section>
-
-  <section id="content-tab2">
-        <p>
-  			<div id="statistic"></div>
-  			<div id="chronology_price"></div>
-  			<div id="chronology_count"></div>
-		</p>
+  <h2>Species:</h2>
+<table class='table_dark'>
+	<tr>
+	<th></th>
+	<th>Scpecies name</th>
+	<th>Avg views</th>
+	<th>Lots count</th>
+	</tr>
+  {% for item in species %}
+  		<tr> <td width=150>
+            <a href="/species/{{item.id}}"><img src="/media/{{item.species_photo}}" alt="{{item.species_name}}" width=140/></a>
+        </td>
+        <td>
+            <a href="/species/{{item.id}}">{{item.species_name}} &raquo;</a>
+        </td>
+        <td>
+            {{item.avg}} 
+        </td>
+        <td>
+            {{item.count}}
+        </td>
+    </tr>	  
+      {% endfor %}
+  </table>
+  </p>
   </section>
-</div>
 
+  
+</div>  
 {% endblock %}
 
 {% block sidenav %}
+{% load mptt_tags %}
 				<h2>Categories</h2>
 				<ul class="root">
 				    {% recursetree nodes %}
@@ -269,5 +219,5 @@
 			                </ul>
 			            {% endif %}
 	               {% endrecursetree %}
-				</ul>		
+				</ul>			
 {% endblock %}

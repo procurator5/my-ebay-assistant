@@ -4,6 +4,7 @@ from django.db.models import Count
 
 from ebay_parse.models import eBayCategory, eBayItem
 from .models import Species
+from django.db.models.aggregates import Avg
 
 # Create your views here.
 def index(request):
@@ -35,6 +36,14 @@ def genus(request, genus_id):
                 }
     return HttpResponse(template.render(context, request))
 
+def best(request):
+    template = loader.get_template("species/best.html")
+    context = {
+                'species' : Species.getBestSpecies(),
+                'nodes': eBayCategory.objects.all(),
+                }
+    return HttpResponse(template.render(context, request))
+
 def search(request):
     query = request.GET['q']
     template = loader.get_template("species/category.html")
@@ -50,7 +59,7 @@ def species(request, species_id):
     sp = Species.objects.get(id = species_id)
     eCategory = sp.category
     context = {
-                'info' : Species.getSpeciesDetailInfo(species_id),
+                'info' : sp.getSpeciesDetailInfo(),
                 'nodes': eBayCategory.objects.all(),
                 'category': eCategory,
                 'items': eBayItem.getItemsForSpecies(species_id),

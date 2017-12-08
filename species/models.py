@@ -23,19 +23,20 @@ class Species(models.Model):
     
     species_photo = ImageField(blank=True, upload_to='species')
     
-    def getSpeciesDetailInfo(species_id):
+    def getSpeciesDetailInfo(self):
         cursor = connection.cursor()
         cursor.execute("""
         WITH info as(
-            select ss.id, count(*), avg(ebay_item_price), min(ebay_item_price), max(ebay_item_price) from species_species ss
-            join species_scpecies2item si ON ss.id=si.species_id
-            join ebay_parse_ebayitem pe ON pe.ebay_item_id = si.item_id
-            group by ss.id)
+            select ss.id, count(*), avg(ebay_item_price), min(ebay_item_price), max(ebay_item_price), avg(ebay_watch_count) AS ebay_watch_count   
+                from species_species ss
+                join species_scpecies2item si ON ss.id=si.species_id
+                join ebay_parse_ebayitem pe ON pe.ebay_item_id = si.item_id
+                group by ss.id)
             select * from species_species ss 
             LEFT JOIN info USING(id)
             JOIN ebay_parse_ebaycategory ec ON ec.ebay_category_id = ss.category_id
             WHERE id = %s
-            """, [species_id])
+            """, [self.id])
         return dictfetchall(cursor)[0]
     
     def getGenusStatistics(genus):
@@ -49,6 +50,19 @@ class Species(models.Model):
                 GROUP BY species_first_name, species_last_name
                 order by lots_count desc
             """, [genus])
+        return dictfetchall(cursor)
+
+    def getBestSpecies():
+        cursor = connection.cursor()
+        cursor.execute("""
+        select ss.id, species_name, species_photo, count(*), to_char(avg(ebay_watch_count), '9999999.99') avg , avg(ebay_watch_count) sort
+                from species_species ss
+                join species_scpecies2item si ON ss.id=si.species_id
+                join ebay_parse_ebayitem pe ON pe.ebay_item_id = si.item_id
+                GROUP BY ss.id, species_name,species_photo
+                Order by 6 desc
+                limit 100
+            """)
         return dictfetchall(cursor)
     
     def best_image(self):
@@ -163,10 +177,10 @@ class Species(models.Model):
         return i
     
     findGenusByDescription = staticmethod(findGenusByDescription)
-    getSpeciesDetailInfo = staticmethod(getSpeciesDetailInfo)
     findSpeciesRelation = staticmethod(findSpeciesRelation)
     getGenusStatistics = staticmethod(getGenusStatistics)
     deleteDublicates = staticmethod(deleteDublicates)
+    getBestSpecies = staticmethod(getBestSpecies)
     
     #full text search
     search_index = VectorField()
@@ -186,7 +200,7 @@ class Species(models.Model):
     def getChronologyStatistic(self):
         cursor = connection.cursor()
         cursor.execute("""
-            SELECT to_char(date_trunc('mon' ,current_date) - s.a * interval '1 mon', 'Month YYYY')  b, 
+            SELECT to_char(date_trunc('mon' ,current_date) - s.a * interval '1 mon', 'Month')  b, 
         (select to_char(coalesce(avg(ebay_item_price), 0), '9999999.99') avg
                 from species_species ss
                 join species_scpecies2item si ON ss.id=si.species_id

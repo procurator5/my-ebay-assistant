@@ -18,12 +18,15 @@ from django.contrib import admin
 from django.conf.urls.static import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf import settings
+from django.contrib.auth.views import login
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^admin_tools/', include('admin_tools.urls')),
     url(r'^ebay_parse/', include('ebay_parse.urls')),
     url(r'^species/', include('species.urls')),
+    url('^', include('django.contrib.auth.urls')),
+    url('^login/$', login, name='login')
 ]
 
 # В конце файла:

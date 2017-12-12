@@ -85,38 +85,28 @@ span.psw {
     <p>You can load item from <a href="https://www.ebay.com/sch/-/3215/i.html">eBay.com</a> into my database. The fossils is very intereced for me ^)</p>
     <p>You can <a href="/load/{{category.ebay_category_id}}"> load {{ category.ebay_category_name }} </a>. This data will been use for analitycs.</p>
 <h1>Work with undefined lots</h1>
-
-<form action="/species_view/">
-  <div class="imgcontainer">
-    <img src="img_avatar2.png" alt="Avatar" class="avatar">
-  </div>
-  <input type="hidden" name="category_id" value="{{category.ebay_category_id}}"/>
-
-  <div class="authcontainer">
-    <label><b>Genus</b></label>
-    <input type="text" placeholder="Genus" name="genus" required>
-
-    <label><b>Species</b></label>
-    <input type="text" placeholder="Species" name="species" required>
-
-    <button type="submit">Save</button>
-  </div>
-
-</form>
+<ul>
+<li> Genus: {{genus}}</li>
+<li> Species: {{species}}
+</ul>
+<br/>
 <hr/>
+
 <table>
   {% for item in items %}
   <tr id="{{item.ebay_item_id}}">
   <td>
   <img alt="{{item.ebay_item_title}}" src="/media/{{item.ebay_gallery_icon}}" width="{{item.ebay_gallery_icon.width}}" height="{{item.ebay_gallery_icon.height}}">
   </td><td>
-	  <span
-	    style="cursor: pointer; text-decoration: underline"
-	    onclick="makeRequest('{{item.ebay_item_id}}')">
+	  <span>
 	        {{item.ebay_item_title}}
 	  </span>
 	</td>
-  </tr>  {% endfor %}
+	<td>
+	        <!-- {{item.ebay_item_description}}  --> 	
+	</td>
+  </tr>  
+  {% endfor %}
 </table>    
 {% endblock %}
 

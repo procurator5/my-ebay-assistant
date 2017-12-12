@@ -8,8 +8,6 @@ import json
 from lxml import etree
 import urllib.request
 
-from .models import ListingType
-from .models import Setting
 from .models import *
 from fileinput import filename
 from species.models import Species, Scpecies2Item
@@ -21,21 +19,52 @@ from django.http.response import HttpResponseRedirect
 def category(request, category_id):
 
     if request.user.is_authenticated():                                
-        template = loader.get_template("category.html")
-        pages = 1
-        
+        template = loader.get_template("ebay_parse/category.html")
+        page = int(request.GET.get('page', 1 ))
+        if page < 1:
+            page = 1
+
         context = {
                     'category': eBayCategory.objects.get(ebay_category_id = category_id),
                     'nodes': eBayCategory.objects.filter(ebay_category_enabled = True),
-                    'items': eBayItem.getUndefinedItems(category_id, 100, 0),
-                    'pages': pages,
+                    'items': eBayItem.getUndefinedItems(category_id, 100, ( page - 1 ) * 100),
+                    'pages': range(1, eBayItem.getUndefPagesCount(category_id, 100)),
                     }
         return HttpResponse(template.render(context, request))
     return HttpResponseRedirect("/")
 
+def saveSpecies(request):
+    genus = request.GET['genus'].lower()
+    species = request.GET['species'].lower()
+    category_id = request.GET['category_id']
+    if request.user.is_authenticated():
+        template = loader.get_template("ebay_parse/save.html")
+        items = eBayItem.objects.search(genus + " "+ species)
+        print(items.all())
+        if len(items) > 0:
+            sp = Species(species_name = genus + " "+ species, species_first_name = genus, species_last_name = species)
+            sp.category = eBayCategory.objects.get(ebay_category_id = int(category_id))
+            sp.save()
+            for item in items:
+                rel = Scpecies2Item(species = sp, item = item)
+                rel.save()
+
+            sp.species_photo = sp.best_image()
+            sp.save()
+        context = {
+                    'category': eBayCategory.objects.get(ebay_category_id = category_id),
+                    'nodes': eBayCategory.objects.filter(ebay_category_enabled = True),
+                    'items': items,
+                    'genus': genus,
+                    'species': species,
+                    }
+        return HttpResponse(template.render(context, request))
+    else:
+        return HttpResponseRedirect("/")
+
 def loadCategory(request, category_id):    
     if request.user.is_authenticated():                                
-        template = loader.get_template("load_category.html")
+        template = loader.get_template("ebay_parse/load_category.html")
         
         l = AutoLoadItems()
         l.loadOnlyOneCategory(category_id)
@@ -90,11 +119,9 @@ def get_response(operation_name, data, encoding, **headers):
         req = urllib.request.Request(endpoint, data, http_headers)
         res = urllib.request.urlopen(req)
     except Exception as e:
-       return str(e)
+        return str(e)
     data = res.read()
     return data
-
-
 
 class AutoLoadItems(CronJobBase):
     

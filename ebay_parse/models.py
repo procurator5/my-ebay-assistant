@@ -4,6 +4,10 @@ import os
 import urllib
 from mptt.models import MPTTModel, TreeForeignKey
 from species.models import Scpecies2Item
+from django.db import connection
+#full-text search 
+from djorm_pgfulltext.models import SearchManager
+from djorm_pgfulltext.fields import VectorField
 
 # Create your models here.
 def load_empty_image():
@@ -106,7 +110,32 @@ class eBayItem(models.Model):
           LIMIT %s OFFSET %s;
         """, [int(category_id), limit, offset])
 
+    def getUndefPagesCount(category_id, limit):
+        cursor = connection.cursor()
+        cursor.execute("""
+            SELECT count(*)
+                      FROM ebay_parse_ebayitem ei
+                      LEFT JOIN species_scpecies2item si ON ei.ebay_item_id = si.item_id
+                      WHERE si.id IS NULL AND ebay_category_id = %s;
+
+            """, [category_id])
+        try:
+            return int(cursor.fetchone()[0]/limit) + 1
+        except TypeError:
+            return 1
+        
+    #full text search
+    search_index = VectorField()
+    
+    objects = SearchManager(
+        fields=('ebay_item_title'),
+        config='pg_catalog.english',
+        search_field='search_index',
+        auto_update_search_field=True
+    )        
+        
     getItemsForSpecies = staticmethod(getItemsForSpecies)
+    getUndefPagesCount = staticmethod(getUndefPagesCount)
     getUndefinedItems = staticmethod(getUndefinedItems)
                 
 

@@ -3,8 +3,12 @@
 		<a href="/species/">Species</a>
 		<a href="/species/best">Best!</a>
 		<a href="#">Maecenas</a>
-		<a href="#">Sodales</a>
+    {% if user.is_authenticated %}		
 		<a href="/ebay_parse/">{% trans "Load category" %}</a>
+		<a href="/logout/">{% trans "Logout" %}</a>
+	{% else %}
+		<a href="/login/">{% trans "Login" %}</a>
+    {% endif %}		
 	<div class="clearer"><span></span>
 	</div>
 	</div>

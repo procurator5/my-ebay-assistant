@@ -5,9 +5,6 @@ import urllib
 from mptt.models import MPTTModel, TreeForeignKey
 from species.models import Scpecies2Item
 
-
-
-
 # Create your models here.
 def load_empty_image():
     return "icons/blank.png"
@@ -85,7 +82,18 @@ class eBayItem(models.Model):
             WHERE si.species_id =%s; 
         """, params = [species_id])
         
-    def getUndefinedItems():
+    def getUndefinedItems(category_id = None, limit = 0, offset = 0):
+        if limit == 0:
+            return eBayItem.objects.raw("""
+            SELECT ebay_item_id, ebay_item_title, ebay_item_url, ebay_item_postalcode, 
+                   ebay_item_location, ebay_item_price, ebay_item_shipping_price, 
+                   ebay_item_starttime, ebay_item_endtime, ebay_watch_count, country_id, 
+                   ebay_category_id, listing_type_id, payment_method_id, ebay_gallery_icon, 
+                   ebay_item_description
+              FROM ebay_parse_ebayitem ei
+              LEFT JOIN species_scpecies2item si ON ei.ebay_item_id = si.item_id
+              WHERE si.id IS NULL;
+            """)
         return eBayItem.objects.raw("""
         SELECT ebay_item_id, ebay_item_title, ebay_item_url, ebay_item_postalcode, 
                ebay_item_location, ebay_item_price, ebay_item_shipping_price, 
@@ -94,8 +102,9 @@ class eBayItem(models.Model):
                ebay_item_description
           FROM ebay_parse_ebayitem ei
           LEFT JOIN species_scpecies2item si ON ei.ebay_item_id = si.item_id
-          WHERE si.id IS NULL;
-        """)
+          WHERE si.id IS NULL AND ebay_category_id = %s
+          LIMIT %s OFFSET %s;
+        """, [int(category_id), limit, offset])
 
     getItemsForSpecies = staticmethod(getItemsForSpecies)
     getUndefinedItems = staticmethod(getUndefinedItems)

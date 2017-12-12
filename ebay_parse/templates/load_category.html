@@ -1,0 +1,109 @@
+{% extends "__index.html" %}
+{% load i18n %}
+
+{% block title %} {% trans "Load category" %}{{category_name}} from eBay.com {% endblock %}
+
+{% block script %}
+    function makeRequest(item_id) {
+        var httpRequest = false;
+
+        if (window.XMLHttpRequest) { // Mozilla, Safari, ...
+            httpRequest = new XMLHttpRequest();
+            if (httpRequest.overrideMimeType) {
+                httpRequest.overrideMimeType('text/xml');
+                // Читайте ниже об этой строке
+            }
+        } else if (window.ActiveXObject) { // IE
+            try {
+                httpRequest = new ActiveXObject("Msxml2.XMLHTTP");
+            } catch (e) {
+                try {
+                    httpRequest = new ActiveXObject("Microsoft.XMLHTTP");
+                } catch (e) {}
+            }
+        }
+
+        if (!httpRequest) {
+            alert('Не вышло :( Невозможно создать экземпляр класса XMLHTTP ');
+            return false;
+        }
+        httpRequest.onreadystatechange = function() { alertContents(httpRequest, item_id); };
+        httpRequest.open('GET', "/ebay_parse/item/" + item_id, true);
+        httpRequest.send(null);
+
+    }
+
+    function alertContents(httpRequest, itemid) {
+
+        if (httpRequest.readyState == 4) {
+            if (httpRequest.status == 200) {
+                //alert(httpRequest.responseText);            
+                document.getElementById(itemid).remove();
+                //Меняем счетчик незагруженных сообщений
+                document.getElementById("score").innerHTML = document.getElementById("score").innerHTML - 1 
+            } else {
+                alert('С запросом возникла проблема.');
+            }
+        }
+
+    }
+{% endblock script %}
+
+{% block content %}
+
+<h1>{% blocktrans %} Load category {{category_name}} from eBay.com{% endblocktrans %}</h1>
+<h2>Details</h2>
+  <p>
+  {% trans "Ebay's API says me:" %}
+  <ul>
+  <li>{% trans "Total pages:" %} {{pages}}</li>
+  </ul>
+  </p>
+  <progress max="{{ all_items }}" value="{{ loaded_items }}"></progress>
+  <p>
+    {%trans "Processing" %} {{ all_items }}
+  </p>
+  <p>
+    {%trans "Items are loaded in this session" %} {{ loaded_items }}
+  </p>
+  <h2>Load detailed information for item</h2>
+  <p>
+  	You don't have detailed information for <div id="score">{{proceseed_items_count}}</div> items
+  <table border="0">
+  {% for item in proceseed_items %}
+  <tr id="{{item.ebay_item_id}}">
+  <td>
+  <img alt="{{item.ebay_item_title}}" src="/media/{{item.ebay_gallery_icon}}" width="{{item.ebay_gallery_icon.width}}" height="{{item.ebay_gallery_icon.height}}">
+  </td><td>
+	  <span
+	    style="cursor: pointer; text-decoration: underline"
+	    onclick="makeRequest('{{item.ebay_item_id}}')">
+	        {{item.ebay_item_title}}
+	  </span>
+	</td>
+  </tr>
+  {% endfor %}
+  </table>
+  <h2>Error Information</h2>
+  <p>
+  
+  </p>
+{% endblock %}
+
+{% block sidenav %}
+{% load mptt_tags %}
+				<h2>Categories</h2>
+				<ul class="root">
+				    {% recursetree nodes %}
+				        <li>
+				        <a href="/ebay_parse/{{node.ebay_category_id}}/">
+				            {{ node.space }} {{ node.ebay_category_name }}
+				        </a>
+			            {% if not node.is_leaf_node %}
+			                <ul class="children">
+			                   {{ children }}
+			                </ul>
+			            {% endif %}
+	               {% endrecursetree %}
+				</ul>			
+{% endblock %}

@@ -8,45 +8,62 @@ import json
 from lxml import etree
 import urllib.request
 
-from .models import Country
 from .models import ListingType
 from .models import Setting
-from .models import eBayCategory, eBayItem, eBayPaymentMethod, eBayItemGallery
+from .models import *
 from fileinput import filename
 from species.models import Species, Scpecies2Item
 
 import logging
+from django.http.response import HttpResponseRedirect
 
 
 def category(request, category_id):
-                                
-    template = loader.get_template("category.html")
-    
-    l = AutoLoadItems()
-    l.loadOnlyOneCategory(category_id)
 
+    if request.user.is_authenticated():                                
+        template = loader.get_template("category.html")
+        pages = 1
         
-    #Вычисляем, что надо подгрузить
-    proceseedItems = eBayItem.objects.filter(ebay_item_description = None, ebay_category = l.category).all()
+        context = {
+                    'category': eBayCategory.objects.get(ebay_category_id = category_id),
+                    'nodes': eBayCategory.objects.filter(ebay_category_enabled = True),
+                    'items': eBayItem.getUndefinedItems(category_id, 100, 0),
+                    'pages': pages,
+                    }
+        return HttpResponse(template.render(context, request))
+    return HttpResponseRedirect("/")
 
-    context = {'all_items': l.all_items, 
-                'loaded_items': l.all_items - l.loaded_items,
-                'category_name': l.category.ebay_category_name,
-                'nodes': eBayCategory.objects.filter(ebay_category_enabled = True),
-                'proceseed_items': proceseedItems,
-                'proceseed_items_count': proceseedItems.count(),
-                'pages': l.pages,
-                }
-    return HttpResponse(template.render(context, request))
+def loadCategory(request, category_id):    
+    if request.user.is_authenticated():                                
+        template = loader.get_template("load_category.html")
+        
+        l = AutoLoadItems()
+        l.loadOnlyOneCategory(category_id)
+    
+        #Вычисляем, что надо подгрузить
+        proceseedItems = eBayItem.objects.filter(ebay_item_description = None, ebay_category = l.category).all()
+    
+        context = {'all_items': l.all_items, 
+                    'loaded_items': l.all_items - l.loaded_items,
+                    'category_name': l.category.ebay_category_name,
+                    'nodes': eBayCategory.objects.filter(ebay_category_enabled = True),
+                    'proceseed_items': proceseedItems,
+                    'proceseed_items_count': proceseedItems.count(),
+                    'pages': l.pages,
+                    }
+        return HttpResponse(template.render(context, request))
+    return HttpResponseRedirect("/")
 
 # Create your views here.
 def index(request):
-    template = loader.get_template("index.html")
-    context = {
-                'nodes': eBayCategory.objects.filter(ebay_category_enabled = True),
-                }
-    return HttpResponse(template.render(context, request))
-
+    if request.user.is_authenticated():
+        template = loader.get_template("ebay_parse/index.html")
+        context = {
+                    'nodes': eBayCategory.objects.filter(ebay_category_enabled = True),
+                    'items': eBayItem.getUndefinedItems(),
+                    }
+        return HttpResponse(template.render(context, request))
+    return HttpResponseRedirect("/")
 
 
 def getItem(request, item_id):

@@ -128,7 +128,7 @@ class eBayItem(models.Model):
     search_index = VectorField()
     
     objects = SearchManager(
-        fields=('ebay_item_title'),
+        fields=('ebay_item_title', 'ebay_item_description'),
         config='pg_catalog.english',
         search_field='search_index',
         auto_update_search_field=True

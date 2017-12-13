@@ -14,6 +14,7 @@ from species.models import Species, Scpecies2Item
 
 import logging
 from django.http.response import HttpResponseRedirect
+from django.template.context_processors import request
 
 
 def category(request, category_id):
@@ -66,7 +67,7 @@ def loadCategory(request, category_id):
     if request.user.is_authenticated():                                
         template = loader.get_template("ebay_parse/load_category.html")
         
-        l = AutoLoadItems()
+        l = AutoLoadItems(request)
         l.loadOnlyOneCategory(category_id)
     
         #Вычисляем, что надо подгрузить
@@ -125,13 +126,14 @@ def get_response(operation_name, data, encoding, **headers):
 
 class AutoLoadItems(CronJobBase):
     
-    def __init__(self):
+    def __init__(self, req = None):
         try:
             RUN_EVERY_MINS = Setting.getIntValue('RunEveryMinLoad')
         except  Exception:
             RUN_EVERY_MINS = 120
             
         self.schedule = Schedule(run_every_mins=RUN_EVERY_MINS)
+        self.request = req
             
     code = 'ebay_parse.AutoLoadItems'
     logger = logging.getLogger(__name__)
@@ -145,6 +147,10 @@ class AutoLoadItems(CronJobBase):
     entries = 0
     
     def loadOnlyOneCategory(self, category_id, force = False):
+        
+        #for logging actions
+        from django.contrib.admin.models import LogEntry, CHANGE, ContentType
+        
         response = self.findItemsByCategory(categoryId=str(category_id))
         api_resp = json.loads(response.decode('utf-8'))
         items = api_resp['findItemsByCategoryResponse'][0]['searchResult'][0]['item']
@@ -161,6 +167,18 @@ class AutoLoadItems(CronJobBase):
             for item in eBayItem.objects.filter(ebay_item_description = None, ebay_category = cat).all():
                 if not self.saveSingleItem(item):
                     self.err_items += 1
+        
+        user_id = 1
+        if self.request != None:
+            user_id = self.request.user.id  
+        LogEntry.objects.log_action(
+            user_id=user_id,
+            content_type_id=ContentType.objects.get_for_model(eBayCategory).pk,
+            object_repr=' Load items for category %s. Processed items: %d, loaded items: %d. Errors: %d' % (self.category.ebay_category_name, self.all_items, self.loaded_items, self.err_items),            
+            object_id=self.category.ebay_category_id,
+            action_flag=CHANGE,
+            change_message='Load items from category %s. Processed items: %d, loaded items: %d. Errors: %d' % (self.category.ebay_category_name, self.all_items, self.loaded_items, self.err_items)
+        )
                 
     def do(self):
         for category in eBayCategory.objects.filter(ebay_category_enabled = True).all():

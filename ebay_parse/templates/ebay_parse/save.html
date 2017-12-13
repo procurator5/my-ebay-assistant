@@ -96,6 +96,9 @@ span.psw {
   {% for item in items %}
   <tr id="{{item.ebay_item_id}}">
   <td>
+  {{item.ebay_item_id}}
+  </td>
+  <td>
   <img alt="{{item.ebay_item_title}}" src="/media/{{item.ebay_gallery_icon}}" width="{{item.ebay_gallery_icon.width}}" height="{{item.ebay_gallery_icon.height}}">
   </td><td>
 	  <span>

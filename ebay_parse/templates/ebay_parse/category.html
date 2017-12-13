@@ -1,7 +1,7 @@
 {% extends "__index.html" %}
 {% load mptt_tags %}
 
-{% block title %} Load eBay items from ebay.com {% endblock %}
+{% block title %} Unsorted {{category.ebay_category_id}} lots from ebay.com {% endblock %}
 
 {% block head %} 
 <style>
@@ -77,11 +77,56 @@ span.psw {
     }
 }
 </style>
+
+<script>
+    function makeRequest(item_id) {
+        var httpRequest = false;
+
+        if (window.XMLHttpRequest) { // Mozilla, Safari, ...
+            httpRequest = new XMLHttpRequest();
+            if (httpRequest.overrideMimeType) {
+                httpRequest.overrideMimeType('text/xml');
+                // Читайте ниже об этой строке
+            }
+        } else if (window.ActiveXObject) { // IE
+            try {
+                httpRequest = new ActiveXObject("Msxml2.XMLHTTP");
+            } catch (e) {
+                try {
+                    httpRequest = new ActiveXObject("Microsoft.XMLHTTP");
+                } catch (e) {}
+            }
+        }
+
+        if (!httpRequest) {
+            alert('Не вышло :( Невозможно создать экземпляр класса XMLHTTP ');
+            return false;
+        }
+        httpRequest.onreadystatechange = function() { alertContents(httpRequest, item_id); };
+        httpRequest.open('GET', "/ebay_parse/item/delete/" + item_id, true);
+        httpRequest.send(null);
+
+    }
+
+    function alertContents(httpRequest, itemid) {
+
+        if (httpRequest.readyState == 4) {
+            if (httpRequest.status == 200) {
+                document.getElementById(itemid ).remove();
+                //Меняем счетчик незагруженных сообщений
+            } else {
+                alert('С запросом возникла проблема.');
+            }
+        }
+
+    }
+</script>
+
 {% endblock head %}
 
 {% block content %}
 
-<h1>Load eBay items from ebay.com</h1>
+<h1>Unsorted {{category.ebay_category_id}} lots from ebay.com </h1>
     <p>You can load item from <a href="https://www.ebay.com/sch/-/3215/i.html">eBay.com</a> into my database. The fossils is very intereced for me ^)</p>
     <p>You can <a href="/ebay_parse/load/{{category.ebay_category_id}}"> load {{ category.ebay_category_name }} </a>. This data will been use for analitycs.</p>
 <h1>Work with undefined lots</h1>
@@ -120,6 +165,13 @@ span.psw {
 	</td>
 	<td>
 	        <!-- {{item.ebay_item_description}}  --> 	
+	</td>
+	<td>
+		<form action="/ebay_parse/item/delete/{{item.ebay_item_id}}">
+		  <div class="authcontainer">
+		    <button type="button" onclick="makeRequest('{{item.ebay_item_id}}')">Delete</button>
+		  </div>		
+		</form>	
 	</td>
   </tr>  
   {% endfor %}

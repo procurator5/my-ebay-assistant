@@ -63,6 +63,13 @@ def saveSpecies(request):
     else:
         return HttpResponseRedirect("/")
 
+def deleteItem(request, item_id):
+    if request.user.is_authenticated():
+        print(item_id)
+        eBayItem.objects.get(ebay_item_id = item_id).delete()
+        return HttpResponse("OK")            
+    return HttpResponse("Error")
+
 def loadCategory(request, category_id):    
     if request.user.is_authenticated():                                
         template = loader.get_template("ebay_parse/load_category.html")

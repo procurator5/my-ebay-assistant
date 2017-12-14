@@ -8,6 +8,8 @@ from django.db import connection
 #full-text search 
 from djorm_pgfulltext.models import SearchManager
 from djorm_pgfulltext.fields import VectorField
+from django.contrib.postgres.indexes import GinIndex
+from postgresql.resolved.riparse import indexes
 
 # Create your models here.
 def load_empty_image():
@@ -126,6 +128,9 @@ class eBayItem(models.Model):
         
     #full text search
     search_index = VectorField()
+    
+    class Meta:
+        indexes = [GinIndex(fields=['search_index'])]
     
     objects = SearchManager(
         fields=('ebay_item_title', 'ebay_item_description'),

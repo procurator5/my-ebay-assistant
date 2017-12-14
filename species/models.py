@@ -27,10 +27,12 @@ class Species(models.Model):
         cursor = connection.cursor()
         cursor.execute("""
         WITH info as(
-            select ss.id, count(*), avg(ebay_item_price), min(ebay_item_price), max(ebay_item_price), avg(ebay_watch_count) AS ebay_watch_count   
+            select ss.id, count(*), avg(ebay_item_price), min(ebay_item_price), max(ebay_item_price), avg(ebay_watch_count) AS ebay_watch_count,
+                string_agg(DISTINCT country_name, ', ') AS counties 
                 from species_species ss
                 join species_scpecies2item si ON ss.id=si.species_id
                 join ebay_parse_ebayitem pe ON pe.ebay_item_id = si.item_id
+                join ebay_parse_country USING(country_id)
                 group by ss.id)
             select * from species_species ss 
             LEFT JOIN info USING(id)

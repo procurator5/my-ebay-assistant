@@ -1,7 +1,6 @@
 from django.db import models
 from ebay_parse.models import eBayItemGallery
 from species.models import Species
-from reportlab.lib.colors import black
 
 # Create your models here.
 class Gallery(models.Model):

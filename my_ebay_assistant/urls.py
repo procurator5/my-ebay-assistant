@@ -35,6 +35,7 @@ urlpatterns = [
     url(r'^admin_tools/', include('admin_tools.urls')),
     url(r'^ebay_parse/', include('ebay_parse.urls')),
     url(r'^species/', include('species.urls')),
+    url(r'^img/', include('gallery.urls')),
     url('^', include('django.contrib.auth.urls')),
     url('^login/$', login, name='login'),
     url(r'^$', index, name='index'),    

@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'mptt',
     'ebay_parse.apps.EbayParseConfig',
     'species.apps.SpeciesConfig',
+    'gallery.apps.GalleryConfig',
 ]
 
 CRON_CLASSES = [

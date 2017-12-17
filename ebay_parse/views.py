@@ -171,7 +171,7 @@ class AutoLoadItems(CronJobBase):
             
         #Загружаем детальную информацию
         if force:
-            for item in eBayItem.objects.filter(ebay_item_description = None, ebay_category = cat).all():
+            for item in eBayItem.objects.filter(ebay_item_description = None, ebay_category = self.category).all():
                 if not self.saveSingleItem(item):
                     self.err_items += 1
         
@@ -188,8 +188,12 @@ class AutoLoadItems(CronJobBase):
         )
                 
     def do(self):
+        self.all_items = 0
+        self.loaded_items = 0
+        self.err_items = 0
         for category in eBayCategory.objects.filter(ebay_category_enabled = True).all():
-            self.loadOnlyOneCategory(category.ebay_category_id, True)            
+            self.category = category
+            self.loadOnlyOneCategory(self.category.ebay_category_id, True)
 
     def getSingleItem(self, item_id, include_selector=None, encoding="JSON"):
         user_params = {

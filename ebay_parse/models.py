@@ -11,8 +11,6 @@ from djorm_pgfulltext.fields import VectorField
 from django.contrib.postgres.indexes import GinIndex
 
 # Create your models here.
-def load_empty_image():
-    return "icons/blank.png"
 
 class Setting(models.Model):
     setting_name = models.CharField(max_length=128)
@@ -53,7 +51,7 @@ class eBayItem(models.Model):
     ebay_item_endtime = models.DateTimeField()
     listing_type = models.ForeignKey('ListingType', on_delete = models.SET_NULL, null=True, blank=True)
     ebay_watch_count = models.IntegerField()
-    ebay_gallery_icon = models.ImageField(default=load_empty_image, upload_to='icons')
+    ebay_gallery_icon = models.ImageField(default=lambda :"icons/blank.png", upload_to='icons')
     ebay_item_description = models.TextField(null=True, blank=True)
     
     def relationIsExists(self):
@@ -110,6 +108,18 @@ class eBayItem(models.Model):
           WHERE si.id IS NULL AND ebay_category_id = %s
           LIMIT %s OFFSET %s;
         """, [int(category_id), limit, offset])
+        
+    def getUndefinedItemsForGenus(genus):
+        return eBayItem.objects.raw("""
+        SELECT ebay_item_id, ebay_item_title, ebay_item_url, ebay_item_postalcode, 
+                   ebay_item_location, ebay_item_price, ebay_item_shipping_price, 
+                   ebay_item_starttime, ebay_item_endtime, ebay_watch_count, country_id, 
+                   ebay_category_id, listing_type_id, payment_method_id, ebay_gallery_icon, 
+                   ebay_item_description
+              FROM ebay_parse_ebayitem ei
+              LEFT JOIN species_scpecies2item si ON ei.ebay_item_id = si.item_id
+              WHERE si.id IS NULL AND to_tsquery(%s) @@ search_index;
+            """, [genus])
 
     def getUndefPagesCount(category_id, limit):
         cursor = connection.cursor()
@@ -138,6 +148,7 @@ class eBayItem(models.Model):
         auto_update_search_field=True
     )        
         
+    getUndefinedItemsForGenus = staticmethod(getUndefinedItemsForGenus)
     getItemsForSpecies = staticmethod(getItemsForSpecies)
     getUndefPagesCount = staticmethod(getUndefPagesCount)
     getUndefinedItems = staticmethod(getUndefinedItems)

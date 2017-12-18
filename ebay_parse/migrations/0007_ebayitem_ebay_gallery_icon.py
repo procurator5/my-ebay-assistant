@@ -17,6 +17,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='ebayitem',
             name='ebay_gallery_icon',
-            field=models.ImageField(default=ebay_parse.models.load_empty_image, upload_to=''),
+            field=models.ImageField(default=lambda: "icons/blank.png", upload_to=''),
         ),
     ]

@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='ebayitem',
             name='ebay_gallery_icon',
-            field=models.ImageField(default=ebay_parse.models.load_empty_image, upload_to='icons'),
+            field=models.ImageField(default=lambda : "icons/blank.png", upload_to='icons'),
         ),
         migrations.AddField(
             model_name='ebayitemgallery',

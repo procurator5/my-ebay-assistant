@@ -2,12 +2,15 @@ from django.contrib import admin
 from .models import Species, Scpecies2Item, stopWords
 from django.conf.urls import url
 
-from ebay_parse.models import eBayItem
+from ebay_parse.models import eBayItem, eBayCategory
 
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
+from django.core.exceptions import ObjectDoesNotExist
 
 import re
+from species.views import species
+from ebay_parse.views import category
 
 # Register your models here.
 class SpeciesAdmin(admin.ModelAdmin):
@@ -100,7 +103,29 @@ class SpeciesAdmin(admin.ModelAdmin):
     def test_action(self, request, *args, **kwargs):
         row_count = Species.deleteDublicates()
 
-        self.message_user(request, 'Delete %d dublicate rows' % row_count )  
+        self.message_user(request, 'Delete %d dublicate rows' % row_count )
+        
+        #Find only genus
+        for genus in Species.objects.values('species_first_name', 'category').distinct():            
+            items = eBayItem.getUndefinedItemsForGenus(genus['species_first_name'])
+            if len(list(items)) == 0:
+                continue
+            
+            try:
+                sp = Species.objects.get(species_first_name = genus['species_first_name'], species_last_name = 'sp')
+            except self.model.DoesNotExist:
+                sp = Species(species_first_name = genus['species_first_name'], species_last_name = 'sp', 
+                             category = eBayCategory.objects.get(ebay_category_id = int(genus['category'])),
+                             species_name= genus['species_first_name'] + " sp"
+                                                                 )
+                sp.save()
+            except self.model.MultipleObjectsReturned:
+                #TODO: Delete on of genus
+                continue
+            
+            for item in items:
+                rel = Scpecies2Item(species = sp, item = item)
+                rel.save()
         
         url = reverse('admin:%s_%s_changelist' % self.get_model_info(),
                           current_app=self.admin_site.name)

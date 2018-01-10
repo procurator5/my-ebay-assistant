@@ -2,9 +2,10 @@ from django.http import HttpResponse
 from django.template import loader
 from django.db.models import Count
 
-from ebay_parse.models import eBayCategory, eBayItem
+from ebay_parse.models import eBayCategory, eBayItem, Scpecies2Item
 from .models import Species
 from django.db.models.aggregates import Avg
+from django.template.context_processors import request
 
 # Create your views here.
 def index(request):
@@ -68,3 +69,12 @@ def species(request, species_id):
                 }
     
     return HttpResponse(template.render(context, request))
+
+def item_delete(request, item_id):
+    if request.user.is_authenticated():
+        species_id = request.GET['species_id']
+        species = Species.objects.get(id = species_id)
+        item = eBayItem.objects.get(ebay_item_id = item_id)
+        Scpecies2Item.objects.filter(species = species, item = item).delete()
+        return HttpResponse("OK")            
+    return HttpResponse("Error")    

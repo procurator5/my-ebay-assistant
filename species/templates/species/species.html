@@ -127,6 +127,46 @@
 	}
 }
 
+/* Set a style for all buttons */
+button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+}
+
+/* Add a hover effect for buttons */
+button:hover {
+    opacity: 0.8;
+}
+
+/* Extra style for the cancel button (red) */
+.cancelbtn {
+    width: auto;
+    padding: 10px 18px;
+    background-color: #f44336;
+}
+
+/* Center the avatar image inside this container */
+.imgcontainer {
+    text-align: center;
+    margin: 24px 0 12px 0;
+}
+
+/* Avatar image */
+img.avatar {
+    width: 40%;
+    border-radius: 50%;
+}
+
+/* Add padding to containers */
+.authcontainer {
+    padding: 16px;
+}
+
 -->
 </style>
 
@@ -188,6 +228,48 @@
     var chart = new google.visualization.ColumnChart(document.getElementById('chronology_count'));
     chart.draw(data, options);
    }
+   
+    function makeRequest(item_id, species_id) {
+        var httpRequest = false;
+
+        if (window.XMLHttpRequest) { // Mozilla, Safari, ...
+            httpRequest = new XMLHttpRequest();
+            if (httpRequest.overrideMimeType) {
+                httpRequest.overrideMimeType('text/xml');
+                // Читайте ниже об этой строке
+            }
+        } else if (window.ActiveXObject) { // IE
+            try {
+                httpRequest = new ActiveXObject("Msxml2.XMLHTTP");
+            } catch (e) {
+                try {
+                    httpRequest = new ActiveXObject("Microsoft.XMLHTTP");
+                } catch (e) {}
+            }
+        }
+
+        if (!httpRequest) {
+            alert('Не вышло :( Невозможно создать экземпляр класса XMLHTTP ');
+            return false;
+        }
+        httpRequest.onreadystatechange = function() { alertContents(httpRequest, item_id); };
+        httpRequest.open('GET', "/species/delete/" + item_id + "?species_id="+species_id, true);
+        httpRequest.send(null);
+
+    }
+
+    function alertContents(httpRequest, itemid) {
+
+        if (httpRequest.readyState == 4) {
+            if (httpRequest.status == 200) {
+                document.getElementById(itemid ).remove();
+                //Меняем счетчик незагруженных сообщений
+            } else {
+                alert('С запросом возникла проблема.');
+            }
+        }
+
+    }   
 {% endblock script %}
 
 
@@ -233,13 +315,23 @@
         <p>
 			<table>
 				{% for item in items %}
-				<tr>
+				<tr id='{{item.ebay_item_id}}'>
 					<td><img alt="{{item.ebay_item_title}}" src="/media/{{item.ebay_gallery_icon}}" width="{{item.ebay_gallery_icon.width}}" height="{{item.ebay_gallery_icon.height}}"></td>
 			    	<td>
 			    		<a href="{{item.ebay_item_url}}" target="_blank">{{item.ebay_item_title}}</a><br>
 			    		{{item.ebay_item_price}} $
 			    	
 			    	</td>
+    {% if user.is_authenticated %}				    	
+					<td>
+						<form action="/species/delete/{{item.ebay_item_id}}" >
+						  <input type="hidden" value="{{info.id}}" name="species_id">
+						  <div class="authcontainer">
+						    <button type="button" onclick="makeRequest('{{item.ebay_item_id}}', '{{info.id}}')">Delete</button>
+						  </div>		
+						</form>	
+					</td>
+	{% endif %}    	
 			    </tr>
 				{%  endfor %}
 			</table>

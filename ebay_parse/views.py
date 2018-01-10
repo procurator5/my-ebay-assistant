@@ -65,7 +65,6 @@ def saveSpecies(request):
 
 def deleteItem(request, item_id):
     if request.user.is_authenticated():
-        print(item_id)
         eBayItem.objects.get(ebay_item_id = item_id).delete()
         return HttpResponse("OK")            
     return HttpResponse("Error")

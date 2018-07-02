@@ -6,7 +6,7 @@ from mptt.admin import MPTTModelAdmin
 from mptt.admin import DraggableMPTTAdmin
 from django.conf.urls import url
 from django.http import HttpResponseRedirect, HttpResponse
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 import urllib.request
 import json

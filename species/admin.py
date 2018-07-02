@@ -5,7 +5,7 @@ from django.conf.urls import url
 from ebay_parse.models import eBayItem, eBayCategory
 
 from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 
 import re

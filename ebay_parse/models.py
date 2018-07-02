@@ -158,7 +158,7 @@ class eBayCategory(MPTTModel):
     ebay_category_id = models.AutoField()
     ebay_category_id.primary_key = True
     ebay_category_name = models.CharField(max_length=256)
-    parent = TreeForeignKey('self', null = True, blank = None, related_name = 'children' )
+    parent = TreeForeignKey('self', null = True, blank = None, related_name = 'children', on_delete=models.CASCADE )
     ebay_category_enabled = models.BooleanField(default = False)
     
     def space(self):

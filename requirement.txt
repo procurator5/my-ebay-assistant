@@ -1,0 +1,7 @@
+Django==2.0
+psycopg2-binary
+django-admin_tools
+django_cron
+djorm-ext-pgfulltext
+django-mptt
+googletrans

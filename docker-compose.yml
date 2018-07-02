@@ -1,0 +1,25 @@
+version: '2'
+services:
+ django:
+  image: tiangolo/uwsgi-nginx:python3.6
+  volumes:
+    - ./:/app
+    - './entrypoint.sh:/entrypoint.sh'
+  environment:
+   #UWSGI_INI: '/app/uwsgi.ini'
+   STATIC_URL: '/static'
+   ENV STATIC_PATH: '/app/static'
+  links:
+    - pg-database  
+  
+ pg-database:
+  image: postgres:9.6
+  environment:
+   POSTGRES_USER: 'postgres'
+   POSTGRES_PASSWORD: 'postgres'
+   PGDATA: '/var/lib/postgresql/data/pgdata'
+   POSTGRES_DB: 'ebay-assistant'
+  volumes:
+   - './db:/var/lib/postgresql/data'    
+  ports:
+   - '25432:5432'

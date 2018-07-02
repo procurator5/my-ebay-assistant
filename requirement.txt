@@ -5,3 +5,5 @@ django_cron
 djorm-ext-pgfulltext
 django-mptt
 googletrans
+lxml
+Pillow

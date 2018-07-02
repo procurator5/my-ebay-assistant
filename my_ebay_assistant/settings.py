@@ -112,7 +112,7 @@ DATABASES = {
         'NAME': 'ebay-assistant',
         'USER': 'postgres',
         'PASSWORD': 'postgres',
-        'HOST': '127.0.0.1',
+        'HOST': 'pg_database',
         'PORT': '5432',
     }
 }

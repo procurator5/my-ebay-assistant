@@ -1,7 +1,8 @@
 version: '2'
 services:
  django:
-  image: tiangolo/uwsgi-nginx:python3.6
+  build: .
+  #image: tiangolo/uwsgi-nginx:python3.6
   volumes:
     - ./:/app
     - './entrypoint.sh:/entrypoint.sh'
@@ -14,6 +15,8 @@ services:
   depends_on:
     - pg-database
 
+  ports:
+   - '80:80'
   
  pg-database:
   image: postgres:9.6
@@ -21,7 +24,7 @@ services:
    POSTGRES_USER: 'postgres'
    POSTGRES_PASSWORD: 'postgres'
    PGDATA: '/var/lib/postgresql/data/pgdata'
-   POSTGRES_DB: 'ebay-assistant'
+   POSTGRES_DB: 'assistant'
    POSTGRES_PORT: '5432'
   volumes:
    - './db:/var/lib/postgresql/data'    

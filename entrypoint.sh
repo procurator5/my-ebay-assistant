@@ -1,6 +1,7 @@
 #!/bin/bash
 
-pip install -r /app/requirement.txt
-python /app/manage.py makemigrations
-python /app/manage.py migrate
+#python /app/manage.py makemigrations
+#python /app/manage.py migrate
 
+/etc/init.d/nginx start  &
+uwsgi --ini /app/uwsgi.ini

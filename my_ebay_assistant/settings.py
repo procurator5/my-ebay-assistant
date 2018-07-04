@@ -109,7 +109,7 @@ WSGI_APPLICATION = 'my_ebay_assistant.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ebay-assistant',
+        'NAME': 'assistant',
         'USER': 'postgres',
         'PASSWORD': 'postgres',
         'HOST': 'pg-database',

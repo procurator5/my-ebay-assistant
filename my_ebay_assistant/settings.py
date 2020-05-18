@@ -111,8 +111,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'assistant',
         'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': 'pg-database',
+        'PASSWORD': os.environ.get("PG_PASSWORD") if os.environ.get("PG_PASSWORD") is not None else 'postgres',
+        'HOST': 'postgresql',
         'PORT': '5432',
     }
 }

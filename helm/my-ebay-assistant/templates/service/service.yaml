@@ -1,15 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "my-ebay-assistant.fullname" . }}
+  name: {{ .Values.main.name }}
   labels:
     {{- include "my-ebay-assistant.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
+    - port: {{ .Values.main.port }}
+      targetPort: {{ .Values.main.port }}
       protocol: TCP
-      name: http
   selector:
-    {{- include "my-ebay-assistant.selectorLabels" . | nindent 4 }}
+    app: {{ .Values.main.label }}

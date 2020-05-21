@@ -6,7 +6,7 @@ metadata:
     app: postgresql
     group: system-service
 spec:
-  type: {{ .Values.postgtresql.type }}
+  type: {{ .Values.postgresql.type }}
   externalName: {{ .Values.postgresql.host }}
   ports:
     - port: {{ .Values.postgresql.port }}

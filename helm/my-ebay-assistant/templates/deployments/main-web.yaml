@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: main-web
+  labels:
+    app: {{ .Values.main.label }}
+spec:
+  selector:
+      matchLabels:
+        app: {{ .Values.main.label }}
+  replicas: 4
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 2
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+      - name: {{ .Values.main.name }}
+        image: {{ .Values.main.image }}:latest
+        command: ["python", "manage.py", "runserver"]
+        env:
+        - name: PG_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: secret
+              key: pg_pass
+        ports:
+        - containerPort: {{ .Values.main.port }}
+

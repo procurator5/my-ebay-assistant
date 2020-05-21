@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-migrate
+  labels:
+    app: migration
+spec:
+  activeDeadlineSeconds: 160
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: {{ .Values.main.name }}
+        image: {{ .Values.main.image }}:latest
+        command: ["python", "manage.py", "migrate"]
+        env:
+        - name: PG_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: secret
+              key: pg_pass
+#        volumes:
+#        - name:secret:
+#        secretName: secret
+
+status: {}

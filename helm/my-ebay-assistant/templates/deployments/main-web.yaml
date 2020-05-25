@@ -8,7 +8,7 @@ spec:
   selector:
       matchLabels:
         app: {{ .Values.main.label }}
-  replicas: 4
+  replicas: {{ .Values.main.replicas }}
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -22,7 +22,7 @@ spec:
       containers:
       - name: {{ .Values.main.name }}
         image: {{ .Values.main.image }}:latest
-        command: ["python", "manage.py", "runserver"]
+        command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
         env:
         - name: PG_PASSWORD
           valueFrom:

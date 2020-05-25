@@ -11,4 +11,5 @@ spec:
       targetPort: {{ .Values.main.port }}
       protocol: TCP
   selector:
-    app: {{ .Values.main.label }}
+    app: {{ .Values.main.name }}
+  type: NodePort

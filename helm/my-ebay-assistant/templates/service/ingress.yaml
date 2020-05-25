@@ -1,20 +1,8 @@
-{{- if .Values.ingress.enabled -}}
-{{- $fullName := include "my-ebay-assistant.fullname" . -}}
-{{- $svcPort := .Values.service.port -}}
-{{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1beta1
-{{- else -}}
-apiVersion: extensions/v1beta1
-{{- end }}
 kind: Ingress
 metadata:
-  name: {{ $fullName }}
-  labels:
-    {{- include "my-ebay-assistant.labels" . | nindent 4 }}
-  {{- with .Values.ingress.annotations }}
+  name: basic-ingress
   annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
 spec:
 {{- if .Values.ingress.tls }}
   tls:
@@ -31,11 +19,8 @@ spec:
     - host: {{ .host | quote }}
       http:
         paths:
-        {{- range .paths }}
-          - path: {{ . }}
+          - path: /
             backend:
-              serviceName: {{ $fullName }}
-              servicePort: {{ $svcPort }}
-        {{- end }}
+              serviceName: ebay-assistant
+              servicePort: 8000
   {{- end }}
-{{- end }}

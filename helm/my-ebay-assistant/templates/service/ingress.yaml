@@ -22,5 +22,5 @@ spec:
           - path: /
             backend:
               serviceName: ebay-assistant
-              servicePort: 8000
+              servicePort: 80
   {{- end }}

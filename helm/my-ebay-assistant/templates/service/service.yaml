@@ -5,11 +5,10 @@ metadata:
   labels:
     {{- include "my-ebay-assistant.labels" . | nindent 4 }}
 spec:
-  type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.main.port }}
+    - port: {{ .Values.service.port }}
       targetPort: {{ .Values.main.port }}
       protocol: TCP
   selector:
-    app: {{ .Values.main.name }}
-  type: NodePort
+    app: {{ .Values.main.label }}
+  type: {{ .Values.service.type }}

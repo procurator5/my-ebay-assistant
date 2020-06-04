@@ -3,10 +3,9 @@ kind: Service
 metadata:
   name: postgresql
   labels:
-    app: postgresql
-    group: system-service
+    {{- include "my-ebay-assistant.labels" . | nindent 4 }}
 spec:
-  type: {{ .Values.postgresql.type }}
+  type: ExternalName
   externalName: {{ .Values.postgresql.host }}
   ports:
     - port: {{ .Values.postgresql.port }}

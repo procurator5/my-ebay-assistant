@@ -68,9 +68,8 @@ tolerations: []
 affinity: {}
 
 postgresql:
-  type: ExternalName
   port: 5432
-  host: 192.168.142.60
+  host: 192.168.122.1
 
 main:
    name: ebay-assistant

@@ -1,4 +1,4 @@
-apiVersion: networking.k8s.io/v1beta1
+  apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: basic-ingress
@@ -22,5 +22,9 @@ spec:
           - path: /
             backend:
               serviceName: ebay-assistant
+              servicePort: 80
+          - path: /static
+            backend:
+              serviceName: nginx
               servicePort: 80
   {{- end }}

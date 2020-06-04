@@ -40,7 +40,7 @@ ingress:
     kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: ebay.paleo-tours.ru  
+    - host: ebay
       paths:
       - "/"
 
@@ -70,7 +70,7 @@ affinity: {}
 postgresql:
   type: ExternalName
   port: 5432
-  host: 34.69.243.191
+  host: 192.168.142.60
 
 main:
    name: ebay-assistant
@@ -78,11 +78,10 @@ main:
    port: 8000
    label: web
    replicas: 1
-   
+
 nginx:
   name: nginx
   targetPort: 80
   type: NodePort
   protocol: TCP
   replicas: 1
-

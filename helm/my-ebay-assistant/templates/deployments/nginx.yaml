@@ -1,10 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  {{- with .Values.hooks.nginxannotations }}
-  annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
   creationTimestamp: null
   labels:
     app: {{ .Values.nginx.name }}
@@ -13,14 +9,14 @@ spec:
 spec:
   selector:
       matchLabels:
-        io.kompose.service: {{ .Values.nginx.name }}
+        app: {{ .Values.nginx.name }}
   replicas: {{ .Values.nginx.replicas }}
   strategy: {}
   template:
     metadata:
       creationTimestamp: null
       labels:
-        app: {{ .Values.nginx.name. }}
+        app: {{ .Values.nginx.name }}
     spec:
       containers:
       - name: {{ .Values.nginx.name }}
@@ -35,14 +31,15 @@ spec:
         volumeMounts:
           - mountPath: /static
             name: static
+            readOnly: true
           - mountPath: /etc/nginx/nginx.conf
             name: nginx-conf
             subPath: nginx.conf
             readOnly: true
       volumes:
         - name: static
-          persistentVolumeClaim:
-            claimName: static
+          configMap:
+            name: static
         - name: nginx-conf
           configMap:
             name: nginx-conf

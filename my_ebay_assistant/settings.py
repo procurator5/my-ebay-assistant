@@ -110,9 +110,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'assistant',
-        'USER': 'postgres',
+        'USER': os.environ.get("PG_USER") if os.environ.get("PG_USER") is not None else 'postgres',
         'PASSWORD': os.environ.get("PG_PASSWORD") if os.environ.get("PG_PASSWORD") is not None else 'postgres',
-        'HOST': 'postgresql',
+        'HOST': : os.environ.get("PG_HOST") if os.environ.get("PG_HOST") is not None else 'postgresql',
         'PORT': '5432',
     }
 }
